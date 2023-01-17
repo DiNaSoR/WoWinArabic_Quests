@@ -1,0 +1,14 @@
+﻿## Interface: 100002
+## Title: WoWinArabic-Quests
+## Version: 10.00
+## Notes: AddOn displays the translated quest informations in Arabic.
+## Notes_pl: Dodatek wyswietla przetlumaczone questy.
+## Author: Platine
+## eMail: platine.wow@gmail.com
+## WWW: https://wowpopolsku.pl
+## DefaultState: Enabled
+## LoadOnDemand: 0
+## SavedVariables: QTR_PS
+
+QuestData_AR.lua
+WoWinArabic_Quests.lua
