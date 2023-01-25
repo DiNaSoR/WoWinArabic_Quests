@@ -1,7 +1,7 @@
-﻿-- Arabic Reshaper for WoWinArabic addons (2023.01.23)
+﻿-- Arabic Reshaper for WoWinArabic addons (2023.01.25)
 -- Author: Platine  (e-mail: platine.wow@gmail.com)
 -- Based on UTF8 library by Kyle Smith
--- Special thanks for create letter reshaping tables and ligatures for DragonArab.
+-- Special thanks for DragonArab for create letter reshaping tables and ligatures.
 
 local debug_show_form = 0;
 
@@ -38,7 +38,7 @@ QTR_Reshaping_Rules = {
    ["ي"] = {isolated = "ي", initial = "ﻳ", middle = "ﻴ", final = "ﻲ"},-- YA
    ["ئ"] = {isolated = "ئ", initial = "ﺋ", middle = "ﺌ", final = "ﺊ"},-- YEH WITH HAMZA ABOVE
    ["ى"] = {isolated = "ى", initial = "ى", middle = "ى", final = "ﻰ"},-- ALEF MAKSURA
-   ["و"] = {isolated = "و", initial = "ﻭ", middle = "ﻮ", final = "ﻮ"},-- WAW
+   ["و"] = {isolated = "و", initial = "و", middle = "ﻮ", final = "ﻮ"},-- WAW
    ["ؤ"] = {isolated = "ؤ", initial = "ﺆ", middle = "ﺆ", final = "ﺆ"},-- WAW WITH HAMZA ABOVE
    ["ه"] = {isolated = "ﻩ", initial = "ﻫ", middle = "ﻬ", final = "ﻪ"},-- HAH
    ["ة"] = {isolated = "ة", initial = "ة", middle = "ة", final = "ﺔ"},-- TAH
@@ -55,8 +55,9 @@ QTR_Reshaping_Rules2 = {
    ["ل".."إ"] = {isolated = "ﻹ", initial="ﻹ",  middle="ﻺ",  final="ﻺ"},            -- Arabic ligature LAM with ALEF with HAMZA below
    ["ل".."آ"] = {isolated = "ﻵ", initial="ﻵ",  middle="ﻶ",  final="ﻶ"},            -- Arabic ligature LAM with ALEF with MADDA
    --Test
-   ["إ".."ع"] = {isolated = "0", initial="ﻋإ",  middle="2",  final="3"},           -- Arabic ligature ALEF with Hamaz below + AIN Middle
-   ["ء".."و"] = {isolated = "وء", initial="وء",  middle="وء",  final="وء"},           
+   ["إ".."ع"] = {isolated = "0", initial="ﻋإ",  middle="ﻋﺈ",  final="3"},           -- Arabic ligature ALEF with Hamaz below + AIN Middle
+   ["ء".."و"] = {isolated = "وء", initial="وء",  middle="وء",  final="وء"},
+   ["ي".."ء"] = {isolated = "0", initial="1",  middle="ءﻲ",  final="3"},        
    };
 
 QTR_Reshaping_Rules3 = {
@@ -186,6 +187,27 @@ function QTR_UTF8len(s)
 end
 
 
+-- function finding character c in the string s and return true or false
+function QTR_UTF8find(s,c)
+	local pos = 1;
+	local bytes = strlen(s);                         -- number of length of the string s in bytes
+   local charbytes;
+   local char1;
+   local odp = false;
+
+	while (pos <= bytes) do
+      charbytes = QTR_UTF8charbytes(s, pos);        -- count of bytes of the character
+      char1 = strsub(s, pos, pos + charbytes - 1);  -- current character from the string s
+		if (char1 == c) then
+         odp = true;
+      end
+		pos = pos + QTR_UTF8charbytes(s, pos);
+	end
+
+	return odp;
+end
+
+
 -- Reverses the order of UTF-8 letters
 function QTR_UTF8reverse(s)
    local bytes = strlen(s);
@@ -196,7 +218,7 @@ function QTR_UTF8reverse(s)
    local newstr = "";
    local position = -1;       -- not specified
    local nextletter = 0;
-   local spaces = ' ?؟!,.;:،'; -- letters that we treat as a space
+   local spaces = '( )?؟!,.;:،'; -- letters that we treat as a space
 
    while (pos <= bytes) do
       charbytes1 = QTR_UTF8charbytes(s, pos);        -- count of bytes (liczba bajtów znaku)
@@ -214,7 +236,7 @@ function QTR_UTF8reverse(s)
             char3 = 'X';
          end
          
-         if (string.find(spaces,char2)) then
+         if (QTR_UTF8find(spaces,char2)) then
             nextletter = 1;      -- space, question mark, exclamation mark, comma, dot, etc.
          else
             nextletter = 2;      -- normal letter
@@ -228,7 +250,7 @@ function QTR_UTF8reverse(s)
       end
 
       -- first determine the original position of the letter in the word
-      if (string.find(spaces,char1)) then
+      if (QTR_UTF8find(spaces,char1)) then
          position = -1;      -- space, question mark, exclamation mark, comma, dot, etc.
       elseif (position < 0) then        -- not specified yet (start the word)
          if ((nextletter == 0) or (nextletter == 1)) then    -- end of file or space on as a next letter
@@ -252,7 +274,7 @@ function QTR_UTF8reverse(s)
 
       -- now modifications to the form of the letter depending on the preceding special letters   
       if ((char0 == "ا") or (char0 == "أ") or (char0 == "إ") or (char0 == "آ") or (char0 == "لا") or (char0 == "ﻷ") or (char0 == "ﻹ") or (char0 == "ﻵ") or (char0 == "ﻵا") or (char0 == "ﻷا") or (char0 == "ﻹا") or (char0 == "ﻻا")) then    -- previous letter was ALEF, DA, THA, RA, ZAI, WA or LA, current should be in isolated form, only if this letter is the last in the word, otherwise form must be initial
-         if (string.find(spaces,char1)) then                                     -- current character is space
+         if (QTR_UTF8find(spaces,char1)) then                                     -- current character is space
             position = 0;                                                        -- isolated letter
          elseif ((nextletter == 0) or (nextletter == 1)) then                    -- end of file or space on as a next letter OR letter is ALEF
             position = 0;                                                        -- isolated letter
@@ -266,7 +288,7 @@ function QTR_UTF8reverse(s)
             position = 1;                                                        -- initial letter
          end
       elseif  (char0 == "د") or (char0 == "ذ") or (char0 == "ر") or (char0 == "ز") or (char0 == "و") or (char0 == "ؤ") then
-         if (string.find(spaces,char1)) then                                     -- current character is space
+         if (QTR_UTF8find(spaces,char1)) then                                     -- current character is space
             position = 0;                                                        -- isolated letter
          elseif ((nextletter == 0) or (nextletter == 1)) then                    -- next character is space
             position = 0;                                                        -- isolated letter

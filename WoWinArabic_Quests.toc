@@ -1,4 +1,4 @@
-﻿## Interface: 100002
+﻿## Interface: 100005
 ## Title: WoWinArabic-Quests
 ## Version: 10.00
 ## Notes: AddOn displays the translated quest informations in Arabic.
