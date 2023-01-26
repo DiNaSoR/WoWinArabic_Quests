@@ -1,9 +1,9 @@
-﻿-- Addon: WoWinArabic_Quests (wersja: 10.00) 2023.01.25
+﻿-- Addon: WoWinArabic_Quests (wersja: 10.01) 2023.01.26
 -- Note: AddOn displays translated quests in Arabic.
 -- الوصف: يتم عرض الترجمة العربية في الإضافة
 -- Opis: AddOn wyświetla przetłumaczone questy w języku arabskim.
 -- Autor: Platine  (e-mail: platine.wow@gmail.com)
--- Special thanks for DragonArab for helping to create letter reshaping rules.
+-- Special thanks to DragonArab for helping to create letter reshaping rules.
 
 -- Zmienne lokalne
 local QTR_version = GetAddOnMetadata("WoWinArabic_Quests", "Version");
@@ -154,6 +154,9 @@ function QTR_CheckVars()
   if (not QTR_PS) then
      QTR_PS = {};
   end
+  if (not QTR_SAVED) then
+     QTR_SAVED = {};
+  end
    -- zapis wersji patcha Wow'a
   QTR_PS["patch"] = GetBuildInfo();    -- zapisz za każdym razem, bo może masz nową wersję gry
   
@@ -272,7 +275,7 @@ function QTR_BlizzardOptions()
   QTROptionsHeader:SetJustifyH("LEFT"); 
   QTROptionsHeader:SetJustifyV("TOP");
   QTROptionsHeader:ClearAllPoints();
-  QTROptionsHeader:SetPoint("TOPLEFT", 140, -16);
+  QTROptionsHeader:SetPoint("TOPLEFT", 120, -16);
   QTROptionsHeader:SetText("2023 ﺔﻨﺴﻟ Platine ﺭﻮﻄﻤﻟﺍ".." ("..QTR_base.. ") "..QTR_version.." ﺔﺨﺴﻧ WoWinArabic-Quests ﺔﻓﺎﺿﺇ");
   QTROptionsHeader:SetFont(QTR_Font2, 16);
 
@@ -289,7 +292,7 @@ function QTR_BlizzardOptions()
   local QTRCheckButton0 = CreateFrame("CheckButton", "QTRCheckButton0", QTROptions, "SettingsCheckBoxControlTemplate");
   QTRCheckButton0.CheckBox:SetScript("OnClick", function(self) if (QTR_PS["active"]=="1") then QTR_PS["active"]="0" else QTR_PS["active"]="1" end; end);
   QTRCheckButton0.CheckBox:SetPoint("TOPLEFT", QTRDateOfBase, "BOTTOMLEFT", 456, -50);    -- pozycja przycisku CheckBox
-  QTRCheckButton0:SetPoint("TOPRIGHT", QTRDateOfBase, "BOTTOMRIGHT", 126, -52);   -- pozycja opisu przycisku CheckBox
+  QTRCheckButton0:SetPoint("TOPRIGHT", QTRDateOfBase, "BOTTOMRIGHT", 100, -52);   -- pozycja opisu przycisku CheckBox
   QTRCheckButton0.Text:SetFont(QTR_Font2, 18);
   QTRCheckButton0.Text:SetText(QTR_UTF8reverse(QTR_Interface.active));       -- Aktywuj dodatek
   QTRCheckButton0.Text:SetJustifyH("RIGHT");
@@ -306,7 +309,7 @@ function QTR_BlizzardOptions()
   local QTRCheckButton3 = CreateFrame("CheckButton", "QTRCheckButton3", QTROptions, "SettingsCheckBoxControlTemplate");
   QTRCheckButton3.CheckBox:SetScript("OnClick", function(self) if (QTR_PS["transtitle"]=="0") then QTR_PS["transtitle"]="1" else QTR_PS["transtitle"]="0" end; end);
   QTRCheckButton3.CheckBox:SetPoint("TOPLEFT", QTRDateOfBase, "BOTTOMLEFT", 456, -160);
-  QTRCheckButton3:SetPoint("TOPRIGHT", QTRDateOfBase, "BOTTOMRIGHT", 110, -162);
+  QTRCheckButton3:SetPoint("TOPRIGHT", QTRDateOfBase, "BOTTOMRIGHT", 90, -162);
   QTRCheckButton3.Text:SetFont(QTR_Font2, 18);
   QTRCheckButton3.Text:SetText(QTR_UTF8reverse(QTR_Interface.transtitle));   -- Przetłumacz tytuł questu
   QTRCheckButton3.Text:SetJustifyH("RIGHT");
@@ -314,7 +317,7 @@ function QTR_BlizzardOptions()
   local QTRCheckButton5 = CreateFrame("CheckButton", "QTRCheckButton5", QTROptions, "SettingsCheckBoxControlTemplate");
   QTRCheckButton5.CheckBox:SetScript("OnClick", function(self) if (QTR_PS["transfixed"]=="1") then QTR_PS["transfixed"]="0" else QTR_PS["transfixed"]="1" end; end);
   QTRCheckButton5.CheckBox:SetPoint("TOPLEFT", QTRCheckButton3.CheckBox, "BOTTOMLEFT", 0, -10);
-  QTRCheckButton5:SetPoint("TOPRIGHT", QTRCheckButton3.CheckBox, "BOTTOMRIGHT", 85, -12);
+  QTRCheckButton5:SetPoint("TOPRIGHT", QTRCheckButton3.CheckBox, "BOTTOMRIGHT", 70, -12);
   QTRCheckButton5.Text:SetFont(QTR_Font2, 18);
   QTRCheckButton5.Text:SetText(QTR_UTF8reverse(QTR_Interface.transfixed));         -- Przetłumacz stałe elementy zadań: Objectives, Rewards
   QTRCheckButton5.Text:SetJustifyH("RIGHT");
@@ -498,6 +501,30 @@ function Spr_Gender(msg)         -- miało być używane w QTR_Messages.itemchoo
       nr_poz = string.find(msg, "YOUR_GENDER");
    end
    return msg;
+end
+
+
+function QTR_SaveQuest(event)
+   if (event=="QUEST_DETAIL") then
+      QTR_SAVED[QTR_quest_ID.." TITLE"]=GetTitleText();            -- save original title to future translation
+      QTR_SAVED[QTR_quest_ID.." DESCRIPTION"]=GetQuestText();      -- save original text to future translation
+      QTR_SAVED[QTR_quest_ID.." OBJECTIVE"]=GetObjectiveText();    -- save original text to future translation
+      local QTR_mapID = C_Map.GetBestMapForUnit("player");
+      if (QTR_mapID) then
+         local QTR_mapINFO = C_Map.GetMapInfo(QTR_mapID);
+         QTR_SAVED[QTR_quest_ID.." MAPID"]=QTR_mapID.."@"..QTR_mapINFO.name.."@"..QTR_mapINFO.mapType.."@"..QTR_mapINFO.parentMapID;     -- save mapID to locale place of this quest
+      end
+   end
+   if (event=="QUEST_PROGRESS") then
+      QTR_SAVED[QTR_quest_ID.." PROGRESS"]=GetProgressText();      -- save original text to future translation
+   end
+   if (event=="QUEST_COMPLETE") then
+      QTR_SAVED[QTR_quest_ID.." COMPLETE"]=GetRewardText();        -- save original text to future translation
+   end
+   if (QTR_SAVED[QTR_quest_ID.." TITLE"]==nil) then
+      QTR_SAVED[QTR_quest_ID.." TITLE"]=GetTitleText();            -- zapisz tytuł w przypadku tylko Zakończenia
+   end
+   QTR_SAVED[QTR_quest_ID.." PLAYER"]=QTR_name..'@'..QTR_race..'@'..QTR_class;  -- zapisz dane gracza
 end
 
 
@@ -693,6 +720,7 @@ function QTR_QuestPrepare(zdarzenie)
          QTR_ToggleButton1:SetText("Quest ID="..str_ID);
          QTR_ToggleButton2:SetText("Quest ID="..str_ID);
          QTR_Translate_On(0);
+         QTR_SaveQuest(zdarzenie);
       end -- jest przetłumaczony quest w bazie
    else	-- tłumaczenia wyłączone
       QTR_ToggleButton0:Disable();        -- przycisk w ramce QuestFrame (NPC)
@@ -728,12 +756,16 @@ function QTR_Translate_On(typ)
          QTR_ToggleButton1:SetText("Quest ID="..QTR_quest_ID.." ("..QTR_lang..")");
          QTR_ToggleButton2:SetText("Quest ID="..QTR_quest_ID.." ("..QTR_lang..")");
          if ((QTR_PS["transtitle"]=="1") and QTR_quest_LG[QTR_quest_ID].title) then
-            QuestInfoTitleHeader:SetFont(QTR_Font1, 18);
             if (WorldMapFrame:IsVisible()) then
                QuestInfoTitleHeader:SetWidth(246);
+               QuestProgressTitleText:SetWidth(246);
+               QuestInfoObjectivesText:SetWidth(246);
             else
                QuestInfoTitleHeader:SetWidth(276);
+               QuestProgressTitleText:SetWidth(276);
+               QuestInfoObjectivesText:SetWidth(268);
             end
+            QuestInfoTitleHeader:SetFont(QTR_Font1, 18);
             QuestInfoTitleHeader:SetJustifyH("RIGHT");         -- wyrównanie od prawego
             QuestInfoTitleHeader:SetText(QTR_UTF8reverse(QTR_quest_LG[QTR_quest_ID].title));
             QuestProgressTitleText:SetFont(QTR_Font1, 15);
@@ -756,9 +788,6 @@ function QTR_Translate_On(typ)
          QuestInfoObjectivesText:SetFont(QTR_Font2, 14);
          if (QTR_quest_LG[QTR_quest_ID].objectives) then
             QuestInfoObjectivesText:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-           -- QuestInfoObjectivesText:SetPoint("BOTTOMRIGHT");
-            
---            QuestInfoObjectivesText:SetText(QTR_UTF8reverse(QTR_quest_LG[QTR_quest_ID].objectives));
             QuestInfoObjectivesText:SetText(QTR_LineReverse(QTR_quest_LG[QTR_quest_ID].objectives, QTR_limit12));
          else
             QuestInfoObjectivesText:SetText(QTR_Messages.missing);
@@ -771,6 +800,7 @@ function QTR_Translate_On(typ)
 --            QuestProgressText:SetJustifyH("LEFT");               -- wyrównanie od lewego
             QuestProgressText:SetText(QTR_Messages.missing);
          end
+         QuestInfoRewardText:SetWidth(276);
          QuestInfoRewardText:SetFont(QTR_Font2, 14);
          if (QTR_quest_LG[QTR_quest_ID].completion) then
             QuestInfoRewardText:SetJustifyH("RIGHT");             -- wyrównanie od prawego
@@ -848,6 +878,7 @@ function QTR_display_constants(lg)
       QuestInfoDescriptionHeader:SetJustifyH("RIGHT");            -- wyrównanie do prawego
       QuestInfoDescriptionHeader:SetText(QTR_UTF8reverse(QTR_Messages.details));
       QuestProgressRequiredItemsText:SetFont(QTR_Font1, 18);
+      QuestProgressRequiredItemsText:SetWidth(272);
       QuestProgressRequiredItemsText:SetJustifyH("RIGHT");        -- wyrównanie od prawego
       QuestProgressRequiredItemsText:SetText(QTR_UTF8reverse(QTR_Messages.reqitems));
       CurrentQuestsText:SetFont(QTR_Font1, 18);
@@ -872,26 +903,51 @@ function QTR_display_constants(lg)
       QuestInfoRewardsFrame.ItemChooseText:SetWidth(270);
       QuestInfoRewardsFrame.ItemChooseText:SetJustifyH("RIGHT");                  -- wyrównanie od prawego
       QuestInfoRewardsFrame.ItemChooseText:SetText(QTR_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemchoose));
-      QuestInfoRewardsFrame.ItemReceiveText:ClearAllPoints();
-      QuestInfoRewardsFrame.ItemReceiveText:SetPoint("TOPLEFT", QuestInfoRewardsFrameQuestInfoItem1, "BOTTOMRIGHT", 45, -10);
-      QuestInfoRewardsFrame.ItemReceiveText:SetFont(QTR_Font2, 13);
-      QuestInfoRewardsFrame.ItemReceiveText:SetJustifyH("RIGHT");                 -- wyrównanie od prawego
-      QuestInfoRewardsFrame.ItemReceiveText:SetText(QTR_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemreceive));
-      QuestInfoMoneyFrame:ClearAllPoints();
-      QuestInfoMoneyFrame:SetPoint("BOTTOMRIGHT", QuestInfoRewardsFrame.ItemReceiveText, "BOTTOMLEFT", -10, -5);
+      if (QuestInfoRewardsFrame) then
+         QuestInfoRewardsFrame.ItemReceiveText:ClearAllPoints();
+         QuestInfoRewardsFrame.ItemReceiveText:SetPoint("TOPRIGHT", QuestInfoRewardsFrame, "BOTTOMRIGHT", -16, 30);
+         QuestInfoRewardsFrame.ItemReceiveText:SetFont(QTR_Font2, 13);
+         QuestInfoRewardsFrame.ItemReceiveText:SetJustifyH("RIGHT");                 -- wyrównanie od prawego
+         if (QTR_quest_LG[QTR_quest_ID].itemreceive) then
+            QuestInfoRewardsFrame.ItemReceiveText:SetText(QTR_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemreceive));
+         else
+            QuestInfoRewardsFrame.ItemReceiveText:SetText(QTR_UTF8reverse(QTR_Messages.itemreceiv0));
+         end
+         QuestInfoMoneyFrame:ClearAllPoints();
+         QuestInfoMoneyFrame:SetPoint("BOTTOMRIGHT", QuestInfoRewardsFrame.ItemReceiveText, "BOTTOMLEFT", -10, -5);
+         QuestInfoXPFrame:SetWidth(270);
+         QuestInfoXPFrame:ClearAllPoints();
+         QuestInfoXPFrame:SetPoint("TOPRIGHT", QuestInfoRewardsFrame.ItemReceiveText, "BOTTOMRIGHT", 0, -5);
+         QuestInfoXPFrame.ReceiveText:SetFont(QTR_Font2, 13);
+         QuestInfoXPFrame.ReceiveText:ClearAllPoints();
+         QuestInfoXPFrame.ReceiveText:SetPoint("BOTTOMRIGHT", QuestInfoXPFrame, "BOTTOMRIGHT", -2, 0);
+         QuestInfoXPFrame.ReceiveText:SetJustifyH("RIGHT");                          -- wyrównanie od prawego
+         QuestInfoXPFrame.ReceiveText:SetText(QTR_UTF8reverse(QTR_Messages.experience));
+         QuestInfoXPFrame.ValueText:ClearAllPoints();
+         if (QTR_quest_LG[QTR_quest_ID].itemreceive) then
+            if (QTR_UTF8len(QTR_quest_LG[QTR_quest_ID].itemreceive) < 10) then
+               QuestInfoXPFrame.ValueText:SetPoint("TOPRIGHT", QuestInfoXPFrame.ReceiveText, "TOPLEFT", -20, 3);
+            elseif (QTR_UTF8len(QTR_quest_LG[QTR_quest_ID].itemreceive) < 15) then
+               QuestInfoXPFrame.ValueText:SetPoint("TOPRIGHT", QuestInfoXPFrame.ReceiveText, "TOPLEFT", -40, 3);
+            elseif (QTR_UTF8len(QTR_quest_LG[QTR_quest_ID].itemreceive) < 20) then
+               QuestInfoXPFrame.ValueText:SetPoint("TOPRIGHT", QuestInfoXPFrame.ReceiveText, "TOPLEFT", -50, 3);
+            else
+               QuestInfoXPFrame.ValueText:SetPoint("TOPRIGHT", QuestInfoXPFrame.ReceiveText, "TOPLEFT", -70, 3);
+            end
+         else
+            QuestInfoXPFrame.ValueText:SetPoint("CENTER", QuestInfoXPFrame);
+         end
+      else
+         QuestInfoRewardsFrame.ItemReceiveText:SetFont(QTR_Font2, 13);
+         QuestInfoRewardsFrame.ItemReceiveText:SetJustifyH("LEFT");
+         QuestInfoRewardsFrame.ItemReceiveText:SetText(QTR_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemreceive));
+         QuestInfoXPFrame.ReceiveText:SetFont(QTR_Font2, 13);
+         QuestInfoXPFrame.ReceiveText:SetJustifyH("LEFT");
+         QuestInfoXPFrame.ReceiveText:SetText(QTR_UTF8reverse(QTR_Messages.experience));
+      end
       QuestInfoSpellObjectiveLearnLabel:SetFont(QTR_Font2, 13);
       QuestInfoSpellObjectiveLearnLabel:SetJustifyH("LEFT");                     -- wyrównanie od prawego
       QuestInfoSpellObjectiveLearnLabel:SetText(QTR_UTF8reverse(QTR_Messages.learnspell));
-      QuestInfoXPFrame:SetWidth(270);
-      QuestInfoXPFrame:ClearAllPoints();
-      QuestInfoXPFrame:SetPoint("TOPLEFT", QuestInfoRewardsFrameQuestInfoItem1, "BOTTOMLEFT", 0, -30);
-      QuestInfoXPFrame.ValueText:ClearAllPoints();
-      QuestInfoXPFrame.ValueText:SetPoint("CENTER", QuestInfoXPFrame);
-      QuestInfoXPFrame.ReceiveText:SetFont(QTR_Font2, 13);
-      QuestInfoXPFrame.ReceiveText:ClearAllPoints();
-      QuestInfoXPFrame.ReceiveText:SetPoint("BOTTOMRIGHT", QuestInfoXPFrame, "BOTTOMRIGHT", -2, 0);
-      QuestInfoXPFrame.ReceiveText:SetJustifyH("RIGHT");                          -- wyrównanie od prawego
-      QuestInfoXPFrame.ReceiveText:SetText(QTR_UTF8reverse(QTR_Messages.experience));
       QuestInfoRewardsFrame.XPFrame.ReceiveText:SetFont(QTR_Font2, 13);
       QuestInfoRewardsFrame.XPFrame.ReceiveText:SetJustifyH("LEFT");             -- wyrównanie od prawego
       QuestInfoRewardsFrame.XPFrame.ReceiveText:SetText(QTR_UTF8reverse(QTR_Messages.experience));
@@ -1216,17 +1272,17 @@ function QTR_ExpandUnitInfo(msg,OnObjectives)
    local nr_poz = string.find(msg, "YOUR_GENDER");    -- gdy nie znalazł, jest: nil
    while (nr_poz and nr_poz>0) do
       nr_1 = nr_poz + 1;   
-      while (string.sub(msg, nr_1, nr_1) ~= "(") do
+      if (string.sub(msg, nr_1, nr_1) ~= "(") then    -- dopuszczam 1 spację odstępu
          nr_1 = nr_1 + 1;
       end
       if (string.sub(msg, nr_1, nr_1) == "(") then
          nr_2 =  nr_1 + 1;
-         while (string.sub(msg, nr_2, nr_2) ~= ";") do
+         while ((string.sub(msg, nr_2, nr_2) ~= ";") and (nr_1+50>nr_2)) do
             nr_2 = nr_2 + 1;
          end
          if (string.sub(msg, nr_2, nr_2) == ";") then
             nr_3 = nr_2 + 1;
-            while (string.sub(msg, nr_3, nr_3) ~= ")") do
+            while ((string.sub(msg, nr_3, nr_3) ~= ")") and (nr_2+50>nr_3)) do
                nr_3 = nr_3 + 1;
             end
             if (string.sub(msg, nr_3, nr_3) == ")") then
@@ -1236,45 +1292,16 @@ function QTR_ExpandUnitInfo(msg,OnObjectives)
                   QTR_forma = string.sub(msg,nr_1+1,nr_2-1);
                end
                msg = string.sub(msg,1,nr_poz-1) .. QTR_forma .. string.sub(msg,nr_3+1);
+            else   
+               msg = string.gsub(msg, "YOUR_GENDER", "G$");
             end   
+         else   
+            msg = string.gsub(msg, "YOUR_GENDER", "G$");
          end
+      else   
+         msg = string.gsub(msg, "YOUR_GENDER", "G$");
       end
       nr_poz = string.find(msg, "YOUR_GENDER");
-   end
-
--- jeszcze obsłużyć OWN_NAME(EN;AR)    : reversed
-   local nr_1, nr_2, nr_3 = 0;
-   local QTR_forma = "";
-   local nr_poz = string.find(msg, "OWN_NAME-disable");    -- gdy nie znalazł, jest: nil
-   while (nr_poz and nr_poz>0) do
-      nr_1 = nr_poz + 1;   
-      while (string.sub(msg, nr_1, nr_1) ~= "(") do
-         nr_1 = nr_1 + 1;
-      end
-      if (string.sub(msg, nr_1, nr_1) == "(") then
-         nr_2 =  nr_1 + 1;
-         while (string.sub(msg, nr_2, nr_2) ~= ";") do
-            nr_2 = nr_2 + 1;
-         end
-         if (string.sub(msg, nr_2, nr_2) == ";") then
-            nr_3 = nr_2 + 1;
-            while (string.sub(msg, nr_3, nr_3) ~= ")") do
-               nr_3 = nr_3 + 1;
-            end
-            if (string.sub(msg, nr_3, nr_3) == ")") then
-               if (QTR_PS["ownname"] == "0") then        -- forma angielska
-                  QTR_forma = string.sub(msg,nr_2+1,nr_3-1);
-               else                        -- forma polska
-                  QTR_forma = string.sub(msg,nr_1+1,nr_2-1);
-               end
-               if ((QTR_PS["ownname_obj"] == "1") and OnObjectives) then        -- zawsze forma angielska w Objectives
-                  QTR_forma = string.sub(msg,nr_2+1,nr_3-1);
-               end
-               msg = string.sub(msg,1,nr_poz-1) .. QTR_forma .. string.sub(msg,nr_3+1);
-            end   
-         end
-      end
-      nr_poz = string.find(msg, "OWN_NAME");
    end
 
    if (QTR_sex==3) then        -- płeć żeńska (female)
