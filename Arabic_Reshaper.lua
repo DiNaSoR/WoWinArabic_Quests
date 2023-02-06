@@ -1,4 +1,4 @@
-﻿-- Arabic Reshaper for WoWinArabic addons (2023.01.26)
+﻿-- Arabic Reshaper for WoWinArabic addons (2023.02.02)
 -- Author: Platine  (e-mail: platine.wow@gmail.com)
 -- Based on UTF8 library by Kyle Smith
 -- Special thanks to DragonArab for create letter reshaping tables and ligatures.
@@ -6,7 +6,7 @@
 local debug_show_form = 0;
 
 -- define a table of reshaping rules for Arabic characters
-QTR_Reshaping_Rules = {
+AS_Reshaping_Rules = {
    ["ا"] = {isolated = "ا", initial = "ا", middle = "ﺎ", final = "ﺎ"},-- ALEF
    ["ﺁ"] = {isolated = "ﺁ", initial = "ﺁ", middle = "ﺂ", final = "ﺂ"},-- ALEF WITH MADA ABOVE
    ["أ"] = {isolated = "أ", initial = "أ", middle = "ﺄ", final = "ﺄ"},-- ALEF WITH HAMZA ABOVE
@@ -49,7 +49,7 @@ QTR_Reshaping_Rules = {
    ["ء"] = {isolated = "ء", initial = "ﺀ", middle = "ﺀ", final = "ﺀ"},-- HAMZA
    };
 
-QTR_Reshaping_Rules2 = {
+AS_Reshaping_Rules2 = {
    ["ل".."ا"] = {isolated = "ﻻ", initial="ﻻ",  middle="ﻼ",  final="ﻼ"},            -- Arabic ligature LAM with ALEF
    ["ل".."أ"] = {isolated = "ﻷ", initial="ﻷ",  middle="ﻸ",  final="ﻸ"},            -- Arabic ligature LAM with ALEF with HAMZA above
    ["ل".."إ"] = {isolated = "ﻹ", initial="ﻹ",  middle="ﻺ",  final="ﻺ"},            -- Arabic ligature LAM with ALEF with HAMZA below
@@ -60,7 +60,7 @@ QTR_Reshaping_Rules2 = {
    ["ي".."ء"] = {isolated = "0", initial="1",  middle="ءﻲ",  final="3"},        
    };
 
-QTR_Reshaping_Rules3 = {
+AS_Reshaping_Rules3 = {
    ["ا".."ل".."آ"] = {isolated = "ﻵا",  initial="ﻵا", middle="ﻵا", final="ﻶا"},        -- Arabic ligature ALEF+LAM+(ALEF with MADA)
    ["ا".."ل".."أ"] = {isolated = "ﻷا",  initial="ﻷا", middle="ﻷا", final="ﻸا"},        -- Arabic ligature ALEF+LAM+(ALEF with HAMZA)
    ["ا".."ل".."إ"] = {isolated = "ﻹا",  initial="ﻹا", middle="ﻹا", final="ﻺا"},        -- Arabic ligature ALEF+LAM+(ALEF with HAMZA Below)
@@ -70,13 +70,13 @@ QTR_Reshaping_Rules3 = {
    };
 
 -- returns the number of bytes used by the UTF-8 character at byte
-function QTR_UTF8charbytes(s, i)
+function AS_UTF8charbytes(s, i)
 	-- argument defaults
 	i = i or 1
 
 	-- argument checking
 	if type(s) ~= "string" then
-		error("bad argument #1 to 'QTR_UTF8charbytes' (string expected, got ".. type(s).. ")")
+		error("bad argument #1 to 'AS_UTF8charbytes' (string expected, got ".. type(s).. ")")
 	end
 	if type(i) ~= "number" then
 		error("bad argument #2 to 'QTR_UFT8charbytes' (number expected, got ".. type(i).. ")")
@@ -162,20 +162,20 @@ function QTR_UTF8charbytes(s, i)
 		return 4
 
 	else
-		error("Invalid UTF-8 character")
+		error("Invalid UTF-8 character: "..c)
 	end
 end
 
 
 -- returns the number of characters in a UTF-8 string
-function QTR_UTF8len(s)
+function AS_UTF8len(s)
    local len = 0;
    if (s) then          -- argument checking
       local pos = 1;
       local bytes = strlen(s);
       while pos <= bytes do
          len = len + 1;
-         pos = pos + QTR_UTF8charbytes(s, pos);
+         pos = pos + AS_UTF8charbytes(s, pos);
       end
    end
    return len;
@@ -183,7 +183,7 @@ end
 
 
 -- function finding character c in the string s and return true or false
-function QTR_UTF8find(s, c)
+function AS_UTF8find(s, c)
    local odp = false;
    if (s and c) then                                   -- check if arguments are not empty (nil)
 		local pos = 1;
@@ -192,12 +192,12 @@ function QTR_UTF8find(s, c)
       local char1;
 
 		while (pos <= bytes) do
-         charbytes = QTR_UTF8charbytes(s, pos);        -- count of bytes of the character
+         charbytes = AS_UTF8charbytes(s, pos);        -- count of bytes of the character
          char1 = strsub(s, pos, pos + charbytes - 1);  -- current character from the string s
 			if (char1 == c) then
             odp = true;
          end
-			pos = pos + QTR_UTF8charbytes(s, pos);
+			pos = pos + AS_UTF8charbytes(s, pos);
 		end
    end
 	return odp;
@@ -205,7 +205,7 @@ end
 
 
 -- Reverses the order of UTF-8 letters
-function QTR_UTF8reverse(s)
+function AS_UTF8reverse(s)
    local newstr = "";
    if (s) then                                   -- check if argument is not empty (nil)
       local bytes = strlen(s);
@@ -218,22 +218,22 @@ function QTR_UTF8reverse(s)
       local spaces = '( )?؟!,.;:،'; -- letters that we treat as a space
 
       while (pos <= bytes) do
-         charbytes1 = QTR_UTF8charbytes(s, pos);        -- count of bytes (liczba bajtów znaku)
+         charbytes1 = AS_UTF8charbytes(s, pos);        -- count of bytes (liczba bajtów znaku)
          char1 = strsub(s, pos, pos + charbytes1 - 1);  -- current character
 			pos = pos + charbytes1;
          
          if (pos <= bytes) then
-            charbytes2 = QTR_UTF8charbytes(s, pos);        -- count of bytes (liczba bajtów znaku)
+            charbytes2 = AS_UTF8charbytes(s, pos);        -- count of bytes (liczba bajtów znaku)
             char2 = strsub(s, pos, pos + charbytes2 - 1);  -- next character
             if (pos+charbytes2 <= bytes) then              -- 3rd next letter is available
-               charbytes3 = QTR_UTF8charbytes(s, pos+charbytes2);                   -- count of bytes (liczba bajtów znaku)
+               charbytes3 = AS_UTF8charbytes(s, pos+charbytes2);                   -- count of bytes (liczba bajtów znaku)
                char3 = strsub(s, pos+charbytes2, pos+charbytes2 + charbytes3 - 1);  -- 3rd next character
             else
                charbytes3 = 0;
                char3 = 'X';
             end
             
-            if (QTR_UTF8find(spaces,char2)) then
+            if (AS_UTF8find(spaces,char2)) then
                nextletter = 1;      -- space, question mark, exclamation mark, comma, dot, etc.
             else
                nextletter = 2;      -- normal letter
@@ -247,7 +247,7 @@ function QTR_UTF8reverse(s)
          end
 
          -- first determine the original position of the letter in the word
-         if (QTR_UTF8find(spaces,char1)) then
+         if (AS_UTF8find(spaces,char1)) then
             position = -1;      -- space, question mark, exclamation mark, comma, dot, etc.
          elseif (position < 0) then        -- not specified yet (start the word)
             if ((nextletter == 0) or (nextletter == 1)) then    -- end of file or space on as a next letter
@@ -271,7 +271,7 @@ function QTR_UTF8reverse(s)
 
          -- now modifications to the form of the letter depending on the preceding special letters   
          if ((char0 == "ﻼ") or (char0 == "ﻸ") or (char0 == "ﻺ") or (char0 == "ﻶ") or (char0 == "ا") or (char0 == "أ") or (char0 == "إ") or (char0 == "آ") or (char0 == "لا") or (char0 == "ﻷ") or (char0 == "ﻹ") or (char0 == "ﻵ") or (char0 == "ﻵا") or (char0 == "ﻷا") or (char0 == "ﻹا") or (char0 == "ﻻا")) then    -- previous letter was ALEF, DA, THA, RA, ZAI, WA or LA, current should be in isolated form, only if this letter is the last in the word, otherwise form must be initial
-            if (QTR_UTF8find(spaces,char1)) then                                     -- current character is space
+            if (AS_UTF8find(spaces,char1)) then                                     -- current character is space
                position = 0;                                                        -- isolated letter
             elseif ((nextletter == 0) or (nextletter == 1)) then                    -- end of file or space on as a next letter OR letter is ALEF
                position = 0;      
@@ -285,7 +285,7 @@ function QTR_UTF8reverse(s)
                position = 1;                                                        -- initial letter
             end
          elseif  (char0 == "د") or (char0 == "ذ") or (char0 == "ر") or (char0 == "ز") or (char0 == "و") or (char0 == "ؤ") then
-            if (QTR_UTF8find(spaces,char1)) then                                     -- current character is space
+            if (AS_UTF8find(spaces,char1)) then                                     -- current character is space
                position = 0;                                                        -- isolated letter
             elseif ((nextletter == 0) or (nextletter == 1)) then                    -- next character is space
                position = 0;                                                        -- isolated letter
@@ -295,8 +295,8 @@ function QTR_UTF8reverse(s)
          end
          
          
-         if ((QTR_Reshaping_Rules3[char1..char2..char3]) and (position >= 0)) then  -- ligature 3 characters
-            local ligature = QTR_Reshaping_Rules3[char1..char2..char3];
+         if ((AS_Reshaping_Rules3[char1..char2..char3]) and (position >= 0)) then  -- ligature 3 characters
+            local ligature = AS_Reshaping_Rules3[char1..char2..char3];
             if (position == 0) then
                char1 = ligature.isolated;
             elseif (position == 1) then
@@ -307,8 +307,8 @@ function QTR_UTF8reverse(s)
                char1 = ligature.final;
             end
             pos = pos + charbytes2 + charbytes3;    -- we omit the next preceding letters
-         elseif ((QTR_Reshaping_Rules2[char1..char2]) and (position >= 0)) then     -- ligature 2 characters
-            local ligature = QTR_Reshaping_Rules2[char1..char2];
+         elseif ((AS_Reshaping_Rules2[char1..char2]) and (position >= 0)) then     -- ligature 2 characters
+            local ligature = AS_Reshaping_Rules2[char1..char2];
             if (position == 0) then
                char1 = ligature.isolated;
             elseif (position == 1) then
@@ -323,7 +323,7 @@ function QTR_UTF8reverse(s)
          
 
          -- check if the character has reshaping rules
-         local rules = QTR_Reshaping_Rules[char1];
+         local rules = AS_Reshaping_Rules[char1];
          if (rules) then
             -- apply reshaping rules based on the character's position in the string
             if (position == 0) then       -- isolated letter
@@ -372,42 +372,3 @@ function QTR_UTF8reverse(s)
    end
    return newstr;
 end
-
-
--- Reverses the order of UTF-8 letters in lines of 35 or 30 characters
-function QTR_LineReverse(s, limit)
-   local retstr = "";
-   if (s and limit) then                           -- check if arguments are not empty (nil)
-		local bytes = strlen(s);
-		local pos = 1;
-		local charbytes;
-		local newstr = "";
-      local counter = 0;
-      local char1;
-		while pos <= bytes do
-			c = strbyte(s, pos);                      -- read the character (odczytaj znak)
-			charbytes = QTR_UTF8charbytes(s, pos);    -- count of bytes (liczba bajtów znaku)
-			newstr = newstr .. strsub(s, pos, pos + charbytes - 1);
-			pos = pos + charbytes;
-         
-         counter = counter + 1;
-         char1 = strsub(s, pos, pos);
-         if ((char1 >= "A") and (char1 <= "z")) then
-            counter = counter + 1;        -- latin letters are 2x wider, then Arabic
-         end
-         if ((char1 == "#") or ((char1 == " ") and (counter>limit))) then
-            newstr = string.gsub(newstr, "#", "");
-            retstr = retstr .. QTR_UTF8reverse(newstr) .. "\n";
-            newstr = "";
-            counter = 0;
-         end
-      end
-      retstr = retstr .. QTR_UTF8reverse(newstr);
-      retstr = string.gsub(retstr, "#", "");
-      retstr = string.gsub(retstr, "\n ", "\n");        -- space after newline code is useless
-      retstr = string.gsub(retstr, "\n\n\n", "\n\n");   -- elimination of redundant newline codes
-   end
-	return retstr;
-end 
-
-

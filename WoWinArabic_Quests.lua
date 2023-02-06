@@ -1,4 +1,4 @@
-﻿-- Addon: WoWinArabic_Quests (wersja: 10.01) 2023.01.26
+﻿-- Addon: WoWinArabic_Quests (wersja: 10.02) 2023.02.03
 -- Note: AddOn displays translated quests in Arabic.
 -- الوصف: يتم عرض الترجمة العربية في الإضافة
 -- Opis: AddOn wyświetla przetłumaczone questy w języku arabskim.
@@ -92,6 +92,7 @@ local p_race = {
    ["Mag'har Orc"] = { M1="ماقهار اورك", M2="ماقهار اورك" },
    ["Mechagnome"] = { M1="ميكاقنوم", M2="ميكاقنوم" },
    ["Nightborne"] = { M1="نايتبرون", M2="نايتبرون" },
+   ["Night Elf"] = { M1="نايت إيلف", M2="نايت إيلف" },
    ["Orc"] = { M1="اورك", M2="اورك" },
    ["Pandaren"] = { M1="باندارين", M2="باندارين" },
    ["Tauren"] = { M1="تورين", M2="تورين" },
@@ -130,7 +131,7 @@ else
    print ("|cff55ff00QTR - new class: "..QTR_class);
 end
 
-
+-------------------------------------------------------------------------------------------------------
 
 local function StringHash(text)           -- funkcja tworząca Hash (32-bitowa liczba) podanego tekstu
   local counter = 1;
@@ -148,6 +149,7 @@ local function StringHash(text)           -- funkcja tworząca Hash (32-bitowa l
   return math.fmod(counter, 4294967291) -- 2^32 - 5: Prime (and different from the prime in the loop)
 end
 
+-------------------------------------------------------------------------------------------------------
 
 -- Zmienne programowe zapisane na stałe na komputerze
 function QTR_CheckVars()
@@ -166,7 +168,7 @@ function QTR_CheckVars()
   end
   -- inicjalizacja: tłumaczenie tytułu questu włączone
   if (not QTR_PS["transtitle"] ) then
-     QTR_PS["transtitle"] = "0";   
+     QTR_PS["transtitle"] = "1";   
   end
   if (not QTR_PS["transfixed"] ) then
      QTR_PS["transfixed"] = "1";   
@@ -183,6 +185,7 @@ function QTR_CheckVars()
   end;
 end
 
+-------------------------------------------------------------------------------------------------------
 
 -- Sprawdza dostępność funkcji specjalnej Wow'a: GetQuestID()
 function DetectEmuServer()
@@ -195,6 +198,7 @@ function DetectEmuServer()
   end
 end
 
+-------------------------------------------------------------------------------------------------------
 
 -- Obsługa komend slash
 function QTR_SlashCommand(msg)
@@ -253,15 +257,15 @@ function QTR_SlashCommand(msg)
    end
 end
 
+-------------------------------------------------------------------------------------------------------
 
 function QTR_SetCheckButtonState()
   QTRCheckButton0:SetValue(QTR_PS["active"]=="1");
   QTRCheckButton3:SetValue(QTR_PS["transtitle"]=="1");
   QTRCheckButton5:SetValue(QTR_PS["transfixed"]=="1");
---  QTRCheckButtonOwnName:SetValue(QTR_PS["ownname"]=="1");
---  QTRCheckButtonOwnName2:SetValue(QTR_PS["ownname_obj"]=="1");
 end
 
+-------------------------------------------------------------------------------------------------------
 
 function QTR_BlizzardOptions()
   -- Create main frame for information text
@@ -279,7 +283,6 @@ function QTR_BlizzardOptions()
   QTROptionsHeader:SetText("2023 ﺔﻨﺴﻟ Platine ﺭﻮﻄﻤﻟﺍ".." ("..QTR_base.. ") "..QTR_version.." ﺔﺨﺴﻧ WoWinArabic-Quests ﺔﻓﺎﺿﺇ");
   QTROptionsHeader:SetFont(QTR_Font2, 16);
 
-
   local QTRDateOfBase = QTROptions:CreateFontString(nil, "ARTWORK");
   QTRDateOfBase:SetFontObject(GameFontNormalLarge);
   QTRDateOfBase:SetJustifyH("LEFT"); 
@@ -292,9 +295,9 @@ function QTR_BlizzardOptions()
   local QTRCheckButton0 = CreateFrame("CheckButton", "QTRCheckButton0", QTROptions, "SettingsCheckBoxControlTemplate");
   QTRCheckButton0.CheckBox:SetScript("OnClick", function(self) if (QTR_PS["active"]=="1") then QTR_PS["active"]="0" else QTR_PS["active"]="1" end; end);
   QTRCheckButton0.CheckBox:SetPoint("TOPLEFT", QTRDateOfBase, "BOTTOMLEFT", 456, -50);    -- pozycja przycisku CheckBox
-  QTRCheckButton0:SetPoint("TOPRIGHT", QTRDateOfBase, "BOTTOMRIGHT", 100, -52);   -- pozycja opisu przycisku CheckBox
+  QTRCheckButton0:SetPoint("TOPRIGHT", QTRDateOfBase, "BOTTOMRIGHT", 48, -52);   -- pozycja opisu przycisku CheckBox
   QTRCheckButton0.Text:SetFont(QTR_Font2, 18);
-  QTRCheckButton0.Text:SetText(QTR_UTF8reverse(QTR_Interface.active));       -- Aktywuj dodatek
+  QTRCheckButton0.Text:SetText(AS_UTF8reverse(QTR_Interface.active));       -- Aktywuj dodatek
   QTRCheckButton0.Text:SetJustifyH("RIGHT");
 
   local QTROptionsMode1 = QTROptions:CreateFontString(nil, "ARTWORK");
@@ -302,45 +305,83 @@ function QTR_BlizzardOptions()
   QTROptionsMode1:SetJustifyH("RIGHT");
   QTROptionsMode1:SetJustifyV("TOP");
   QTROptionsMode1:ClearAllPoints();
-  QTROptionsMode1:SetPoint("TOPRIGHT", QTRDateOfBase, "BOTTOMRIGHT", -16, -120);
+  QTROptionsMode1:SetPoint("TOPRIGHT", QTRDateOfBase, "BOTTOMRIGHT", -10, -120);
   QTROptionsMode1:SetFont(QTR_Font2, 18);
-  QTROptionsMode1:SetText(":"..QTR_UTF8reverse(QTR_Interface.settings));          -- Ustawienia dodatku
+  QTROptionsMode1:SetText(":"..AS_UTF8reverse(QTR_Interface.settings));          -- Ustawienia dodatku
   
   local QTRCheckButton3 = CreateFrame("CheckButton", "QTRCheckButton3", QTROptions, "SettingsCheckBoxControlTemplate");
   QTRCheckButton3.CheckBox:SetScript("OnClick", function(self) if (QTR_PS["transtitle"]=="0") then QTR_PS["transtitle"]="1" else QTR_PS["transtitle"]="0" end; end);
   QTRCheckButton3.CheckBox:SetPoint("TOPLEFT", QTRDateOfBase, "BOTTOMLEFT", 456, -160);
-  QTRCheckButton3:SetPoint("TOPRIGHT", QTRDateOfBase, "BOTTOMRIGHT", 90, -162);
+  QTRCheckButton3:SetPoint("TOPRIGHT", QTRDateOfBase, "BOTTOMRIGHT", 100, -162);
   QTRCheckButton3.Text:SetFont(QTR_Font2, 18);
-  QTRCheckButton3.Text:SetText(QTR_UTF8reverse(QTR_Interface.transtitle));   -- Przetłumacz tytuł questu
+  QTRCheckButton3.Text:SetText(AS_UTF8reverse(QTR_Interface.transtitle));   -- Przetłumacz tytuł questu
   QTRCheckButton3.Text:SetJustifyH("RIGHT");
 
   local QTRCheckButton5 = CreateFrame("CheckButton", "QTRCheckButton5", QTROptions, "SettingsCheckBoxControlTemplate");
   QTRCheckButton5.CheckBox:SetScript("OnClick", function(self) if (QTR_PS["transfixed"]=="1") then QTR_PS["transfixed"]="0" else QTR_PS["transfixed"]="1" end; end);
   QTRCheckButton5.CheckBox:SetPoint("TOPLEFT", QTRCheckButton3.CheckBox, "BOTTOMLEFT", 0, -10);
-  QTRCheckButton5:SetPoint("TOPRIGHT", QTRCheckButton3.CheckBox, "BOTTOMRIGHT", 70, -12);
+  QTRCheckButton5:SetPoint("TOPRIGHT", QTRCheckButton3.CheckBox, "BOTTOMRIGHT", 75, -12);
   QTRCheckButton5.Text:SetFont(QTR_Font2, 18);
-  QTRCheckButton5.Text:SetText(QTR_UTF8reverse(QTR_Interface.transfixed));         -- Przetłumacz stałe elementy zadań: Objectives, Rewards
+  QTRCheckButton5.Text:SetText(AS_UTF8reverse(QTR_Interface.transfixed));         -- Przetłumacz stałe elementy zadań: Objectives, Rewards
   QTRCheckButton5.Text:SetJustifyH("RIGHT");
   
---  local QTRCheckButtonOwnName = CreateFrame("CheckButton", "QTRCheckButtonOwnName", QTROptions, "SettingsCheckBoxControlTemplate");
---  QTRCheckButtonOwnName.CheckBox:SetScript("OnClick", function(self) if (QTR_PS["ownname"]=="1") then QTR_PS["ownname"]="0" else QTR_PS["ownname"]="1" end; end);
---  QTRCheckButtonOwnName.CheckBox:SetPoint("TOPLEFT", QTRCheckButton3.CheckBox, "BOTTOMLEFT", 0, -50);
---  QTRCheckButtonOwnName:SetPoint("TOPRIGHT", QTRCheckButton3.CheckBox, "BOTTOMRIGHT", (-20-string.utf8len(QTR_Interface.ownname)), -52);
---  QTRCheckButtonOwnName.Text:SetFont(QTR_Font2, 13);
---  QTRCheckButtonOwnName.Text:SetText(QTR_UTF8reverse(QTR_Interface.ownname));         -- Wyświetlaj przetłumaczone nazwy własne w języku arabskim  
---  QTRCheckButtonOwnName.Text:SetJustifyH("RIGHT");
+  local QTRText0 = QTROptions:CreateFontString(nil, "ARTWORK");
+  QTRText0:SetFontObject(GameFontWhite);
+  QTRText0:SetJustifyH("LEFT");
+  QTRText0:SetJustifyV("TOP");
+  QTRText0:ClearAllPoints();
+  QTRText0:SetPoint("BOTTOMLEFT", 16, 120);
+  QTRText0:SetFont(QTR_Font2, 13);
+  QTRText0:SetText("Quick commands from the chat line:");
   
---  local QTRCheckButtonOwnName2 = CreateFrame("CheckButton", "QTRCheckButtonOwnName2", QTROptions, "SettingsCheckBoxControlTemplate");
---  QTRCheckButtonOwnName2.CheckBox:SetScript("OnClick", function(self) if (QTR_PS["ownname_obj"]=="1") then QTR_PS["ownname_obj"]="0" else QTR_PS["ownname_obj"]="1" end; end);
---  QTRCheckButtonOwnName2.CheckBox:SetPoint("TOPLEFT", QTRCheckButton3.CheckBox, "BOTTOMLEFT", 0, -90);
---  QTRCheckButtonOwnName2:SetPoint("TOPRIGHT", QTRCheckButton3.CheckBox, "BOTTOMRIGHT", (-110-string.utf8len(QTR_Interface.ownname_obj)), -92);
---  QTRCheckButtonOwnName2.Text:SetFont(QTR_Font2, 13);
---  QTRCheckButtonOwnName2.Text:SetText(QTR_UTF8reverse(QTR_Interface.ownname_obj));    -- Nazwy własne w sekcji Zadanie - wyświetlaj zawsze po angielsku
---  QTRCheckButtonOwnName2.Text:SetJustifyH("RIGHT");
+  local QTRText7 = QTROptions:CreateFontString(nil, "ARTWORK");
+  QTRText7:SetFontObject(GameFontWhite);
+  QTRText7:SetJustifyH("LEFT");
+  QTRText7:SetJustifyV("TOP");
+  QTRText7:ClearAllPoints();
+  QTRText7:SetPoint("TOPLEFT", QTRText0, "BOTTOMLEFT", 0, -10);
+  QTRText7:SetFont(QTR_Font2, 13);
+  QTRText7:SetText("/qtr   to bring up this addon settings window");
+  
+  local QTRText1 = QTROptions:CreateFontString(nil, "ARTWORK");
+  QTRText1:SetFontObject(GameFontWhite);
+  QTRText1:SetJustifyH("LEFT");
+  QTRText1:SetJustifyV("TOP");
+  QTRText1:ClearAllPoints();
+  QTRText1:SetPoint("TOPLEFT", QTRText7, "BOTTOMLEFT", 0, -10);
+  QTRText1:SetFont(QTR_Font2, 13);
+  QTRText1:SetText("/qtr 1  or  /qtr on   to activate the addon");
+
+  local QTRText2 = QTROptions:CreateFontString(nil, "ARTWORK");
+  QTRText2:SetFontObject(GameFontWhite);
+  QTRText2:SetJustifyH("LEFT");
+  QTRText2:SetJustifyV("TOP");
+  QTRText2:ClearAllPoints();
+  QTRText2:SetPoint("TOPLEFT", QTRText1, "BOTTOMLEFT", 0, -4);
+  QTRText2:SetFont(QTR_Font2, 13);
+  QTRText2:SetText("/qtr 0  or  /qtr off   to deactivate the addon");
+  
+  local QTRText3 = QTROptions:CreateFontString(nil, "ARTWORK");
+  QTRText3:SetFontObject(GameFontWhite);
+  QTRText3:SetJustifyH("LEFT");
+  QTRText3:SetJustifyV("TOP");
+  QTRText3:ClearAllPoints();
+  QTRText3:SetPoint("TOPLEFT", QTRText2, "BOTTOMLEFT", 0, -4);
+  QTRText3:SetFont(QTR_Font2, 13);
+  QTRText3:SetText("/qtr title 1  or  /qtr title on   to activate translation of titles");
+
+  local QTRText4 = QTROptions:CreateFontString(nil, "ARTWORK");
+  QTRText4:SetFontObject(GameFontWhite);
+  QTRText4:SetJustifyH("LEFT");
+  QTRText4:SetJustifyV("TOP");
+  QTRText4:ClearAllPoints();
+  QTRText4:SetPoint("TOPLEFT", QTRText3, "BOTTOMLEFT", 0, -4);
+  QTRText4:SetFont(QTR_Font2, 13);
+  QTRText4:SetText("/qtr title 0  or  /qtr title off   to deactivate translation of titles");
   
 end
 
-
+-------------------------------------------------------------------------------------------------------
 
 function QTR_wait(delay, func, ...)
   if(type(delay)~="number" or type(func)~="function") then
@@ -370,7 +411,7 @@ function QTR_wait(delay, func, ...)
   return true;
 end
 
-
+-------------------------------------------------------------------------------------------------------
 
 function QTR_ON_OFF()
    if (curr_trans=="1") then
@@ -382,6 +423,7 @@ function QTR_ON_OFF()
    end
 end
 
+-------------------------------------------------------------------------------------------------------
 
 -- Pierwsza funkcja wywoływana po załadowaniu dodatku
 function QTR_START()
@@ -430,11 +472,9 @@ function QTR_START()
    QuestFrameCompleteQuestButton:HookScript("OnClick", QTR_QuestFrameButton_OnClick);
    QuestLogPopupDetailFrame:HookScript("OnShow", QTR_QuestLogPopupShow);
    
-   QTR:RegisterEvent("CHAT_MSG_ADDON");      -- ukryty kanał addonu
-   C_ChatInfo.RegisterAddonMessagePrefix("WoWinArabic_QTR");
-   
 end
 
+-------------------------------------------------------------------------------------------------------
 
 function QTR_QuestLogPopupShow()
    if (QuestLogPopupDetailFrame:IsVisible()) then
@@ -442,6 +482,7 @@ function QTR_QuestLogPopupShow()
    end
 end
 
+-------------------------------------------------------------------------------------------------------
 
 -- Kolejny quest w otwartym już oknie QuestFrame?
 function QTR_QuestFrameButton_OnClick()
@@ -450,6 +491,7 @@ function QTR_QuestFrameButton_OnClick()
    end
 end
 
+-------------------------------------------------------------------------------------------------------
 
 function Spr_Gender(msg)         -- miało być używane w QTR_Messages.itemchoose1 - na razie wyłączone
    local nr_1, nr_2, nr_3 = 0;
@@ -503,6 +545,7 @@ function Spr_Gender(msg)         -- miało być używane w QTR_Messages.itemchoo
    return msg;
 end
 
+-------------------------------------------------------------------------------------------------------
 
 function QTR_SaveQuest(event)
    if (event=="QUEST_DETAIL") then
@@ -527,6 +570,7 @@ function QTR_SaveQuest(event)
    QTR_SAVED[QTR_quest_ID.." PLAYER"]=QTR_name..'@'..QTR_race..'@'..QTR_class;  -- zapisz dane gracza
 end
 
+-------------------------------------------------------------------------------------------------------
 
 -- Określa aktualny numer ID questu z różnych metod
 function QTR_GetQuestID()
@@ -551,10 +595,14 @@ function QTR_GetQuestID()
    return (quest_ID);
 end
 
+-------------------------------------------------------------------------------------------------------
 
 -- Wywoływane przy przechwytywanych zdarzeniach
 function QTR_OnEvent(self, event, name, ...)
    if (event=="ADDON_LOADED" and name=="WoWinArabic_Quests") then
+      QTR_f:UnregisterEvent("ADDON_LOADED");
+      local _fontC, _sizeC, _C = DEFAULT_CHAT_FRAME:GetFont(); -- odczytaj aktualną czcionkę, rozmiar i typ
+      DEFAULT_CHAT_FRAME:SetFont(QTR_Font2, _sizeC, _C);
       QTR_START();
       SlashCmdList["WOWINARABIC_QUESTS"] = function(msg) QTR_SlashCommand(msg); end
       SLASH_WOWINARABIC_QUESTS1 = "/wowinarabic-quests";
@@ -563,8 +611,7 @@ function QTR_OnEvent(self, event, name, ...)
       -- twórz interface Options w Blizzard-Interface-Addons
       QTR_BlizzardOptions();
       print ("|cffffff00WoWinArabic-Quests ver. "..QTR_version.." - "..QTR_Messages.started);
-      QTR:UnregisterEvent("ADDON_LOADED");
-      QTR.ADDON_LOADED = nil;
+      QTR_f.ADDON_LOADED = nil;
             
 --      QTR_Messages.itemchoose1 = Spr_Gender(QTR_Messages.itemchoose1);
       if (not isGetQuestID) then
@@ -577,6 +624,7 @@ function QTR_OnEvent(self, event, name, ...)
    end
 end
 
+-------------------------------------------------------------------------------------------------------
 
 -- Otworzono okienko QuestLogPopupDetailFrame lub QuestMapDetailsScrollFrame
 function QTR_QuestPrepare(zdarzenie)
@@ -736,6 +784,7 @@ function QTR_QuestPrepare(zdarzenie)
    end	-- tłumaczenia są włączone
 end
 
+-------------------------------------------------------------------------------------------------------
 
 -- wyświetla tłumaczenie
 function QTR_Translate_On(typ)
@@ -767,10 +816,10 @@ function QTR_Translate_On(typ)
             end
             QuestInfoTitleHeader:SetFont(QTR_Font1, 18);
             QuestInfoTitleHeader:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-            QuestInfoTitleHeader:SetText(QTR_UTF8reverse(QTR_quest_LG[QTR_quest_ID].title));
+            QuestInfoTitleHeader:SetText(AS_UTF8reverse(QTR_quest_LG[QTR_quest_ID].title));
             QuestProgressTitleText:SetFont(QTR_Font1, 15);
             QuestProgressTitleText:SetJustifyH("RIGHT");       -- wyrównanie od prawego
-            QuestProgressTitleText:SetText(QTR_UTF8reverse(QTR_quest_LG[QTR_quest_ID].title));
+            QuestProgressTitleText:SetText(AS_UTF8reverse(QTR_quest_LG[QTR_quest_ID].title));
          end
          local QTR_limit12 = 50;
          if (WorldMapFrame:IsVisible()) then
@@ -821,6 +870,7 @@ function QTR_Translate_On(typ)
    end
 end
 
+-------------------------------------------------------------------------------------------------------
 
 -- wyświetla oryginalny tekst angielski
 function QTR_Translate_Off(typ)
@@ -862,31 +912,32 @@ function QTR_Translate_Off(typ)
    end
 end
 
+-------------------------------------------------------------------------------------------------------
 
 function QTR_display_constants(lg)
    if (lg==1) then        -- dane stałe po arabsku
       QuestInfoObjectivesHeader:SetFont(QTR_Font1, 18);
       QuestInfoObjectivesHeader:SetWidth(270);
       QuestInfoObjectivesHeader:SetJustifyH("RIGHT");             -- wyrównanie do prawego
-      QuestInfoObjectivesHeader:SetText(QTR_UTF8reverse(QTR_Messages.objectives));
+      QuestInfoObjectivesHeader:SetText(AS_UTF8reverse(QTR_Messages.objectives));
       QuestInfoRewardsFrame.Header:SetFont(QTR_Font1, 18);
       QuestInfoRewardsFrame.Header:SetWidth(270);
       QuestInfoRewardsFrame.Header:SetJustifyH("RIGHT");          -- wyrównanie do prawego
-      QuestInfoRewardsFrame.Header:SetText(QTR_UTF8reverse(QTR_Messages.rewards));
+      QuestInfoRewardsFrame.Header:SetText(AS_UTF8reverse(QTR_Messages.rewards));
       QuestInfoDescriptionHeader:SetFont(QTR_Font1, 18);
       QuestInfoDescriptionHeader:SetWidth(243);
       QuestInfoDescriptionHeader:SetJustifyH("RIGHT");            -- wyrównanie do prawego
-      QuestInfoDescriptionHeader:SetText(QTR_UTF8reverse(QTR_Messages.details));
+      QuestInfoDescriptionHeader:SetText(AS_UTF8reverse(QTR_Messages.details));
       QuestProgressRequiredItemsText:SetFont(QTR_Font1, 18);
       QuestProgressRequiredItemsText:SetWidth(272);
       QuestProgressRequiredItemsText:SetJustifyH("RIGHT");        -- wyrównanie od prawego
-      QuestProgressRequiredItemsText:SetText(QTR_UTF8reverse(QTR_Messages.reqitems));
+      QuestProgressRequiredItemsText:SetText(AS_UTF8reverse(QTR_Messages.reqitems));
       CurrentQuestsText:SetFont(QTR_Font1, 18);
       CurrentQuestsText:SetJustifyH("RIGHT");                     -- wyrównanie od prawego
-      CurrentQuestsText:SetText(QTR_UTF8reverse(QTR_Messages.currquests));
+      CurrentQuestsText:SetText(AS_UTF8reverse(QTR_Messages.currquests));
       AvailableQuestsText:SetFont(QTR_Font1, 18);
       AvailableQuestsText:SetJustifyH("RIGHT");                   -- wyrównanie od prawego
-      AvailableQuestsText:SetText(QTR_UTF8reverse(QTR_Messages.avaiquests));
+      AvailableQuestsText:SetText(AS_UTF8reverse(QTR_Messages.avaiquests));
       local regions = { QuestMapFrame.DetailsFrame.RewardsFrame:GetRegions() };
       for index = 1, #regions do
          local region = regions[index];
@@ -894,7 +945,7 @@ function QTR_display_constants(lg)
             local _font1, _size1, _3 = region:GetFont();    -- odczytaj aktualną czcionkę i rozmiar
             region:SetFont(QTR_Font1, _size1);
             region:SetJustifyH("RIGHT");                          -- wyrównanie od prawego
-            region:SetText(QTR_UTF8reverse(QTR_Messages.rewards));
+            region:SetText(AS_UTF8reverse(QTR_Messages.rewards));
          end
       end
       
@@ -902,16 +953,16 @@ function QTR_display_constants(lg)
       QuestInfoRewardsFrame.ItemChooseText:SetFont(QTR_Font2, 13);
       QuestInfoRewardsFrame.ItemChooseText:SetWidth(270);
       QuestInfoRewardsFrame.ItemChooseText:SetJustifyH("RIGHT");                  -- wyrównanie od prawego
-      QuestInfoRewardsFrame.ItemChooseText:SetText(QTR_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemchoose));
+      QuestInfoRewardsFrame.ItemChooseText:SetText(AS_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemchoose));
       if (QuestInfoRewardsFrame) then
          QuestInfoRewardsFrame.ItemReceiveText:ClearAllPoints();
          QuestInfoRewardsFrame.ItemReceiveText:SetPoint("TOPRIGHT", QuestInfoRewardsFrame, "BOTTOMRIGHT", -16, 30);
          QuestInfoRewardsFrame.ItemReceiveText:SetFont(QTR_Font2, 13);
          QuestInfoRewardsFrame.ItemReceiveText:SetJustifyH("RIGHT");                 -- wyrównanie od prawego
          if (QTR_quest_LG[QTR_quest_ID].itemreceive) then
-            QuestInfoRewardsFrame.ItemReceiveText:SetText(QTR_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemreceive));
+            QuestInfoRewardsFrame.ItemReceiveText:SetText(AS_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemreceive));
          else
-            QuestInfoRewardsFrame.ItemReceiveText:SetText(QTR_UTF8reverse(QTR_Messages.itemreceiv0));
+            QuestInfoRewardsFrame.ItemReceiveText:SetText(AS_UTF8reverse(QTR_Messages.itemreceiv0));
          end
          QuestInfoMoneyFrame:ClearAllPoints();
          QuestInfoMoneyFrame:SetPoint("BOTTOMRIGHT", QuestInfoRewardsFrame.ItemReceiveText, "BOTTOMLEFT", -10, -5);
@@ -921,15 +972,15 @@ function QTR_display_constants(lg)
          QuestInfoXPFrame.ReceiveText:SetFont(QTR_Font2, 13);
          QuestInfoXPFrame.ReceiveText:ClearAllPoints();
          QuestInfoXPFrame.ReceiveText:SetPoint("BOTTOMRIGHT", QuestInfoXPFrame, "BOTTOMRIGHT", -2, 0);
-         QuestInfoXPFrame.ReceiveText:SetJustifyH("RIGHT");                          -- wyrównanie od prawego
-         QuestInfoXPFrame.ReceiveText:SetText(QTR_UTF8reverse(QTR_Messages.experience));
+         QuestInfoXPFrame.ReceiveText:SetJustifyH("LEFT");                          -- wyrównanie od prawego
+         QuestInfoXPFrame.ReceiveText:SetText(AS_UTF8reverse(QTR_Messages.experience));
          QuestInfoXPFrame.ValueText:ClearAllPoints();
          if (QTR_quest_LG[QTR_quest_ID].itemreceive) then
-            if (QTR_UTF8len(QTR_quest_LG[QTR_quest_ID].itemreceive) < 10) then
+            if (AS_UTF8len(QTR_quest_LG[QTR_quest_ID].itemreceive) < 10) then
                QuestInfoXPFrame.ValueText:SetPoint("TOPRIGHT", QuestInfoXPFrame.ReceiveText, "TOPLEFT", -20, 3);
-            elseif (QTR_UTF8len(QTR_quest_LG[QTR_quest_ID].itemreceive) < 15) then
+            elseif (AS_UTF8len(QTR_quest_LG[QTR_quest_ID].itemreceive) < 15) then
                QuestInfoXPFrame.ValueText:SetPoint("TOPRIGHT", QuestInfoXPFrame.ReceiveText, "TOPLEFT", -40, 3);
-            elseif (QTR_UTF8len(QTR_quest_LG[QTR_quest_ID].itemreceive) < 20) then
+            elseif (AS_UTF8len(QTR_quest_LG[QTR_quest_ID].itemreceive) < 20) then
                QuestInfoXPFrame.ValueText:SetPoint("TOPRIGHT", QuestInfoXPFrame.ReceiveText, "TOPLEFT", -50, 3);
             else
                QuestInfoXPFrame.ValueText:SetPoint("TOPRIGHT", QuestInfoXPFrame.ReceiveText, "TOPLEFT", -70, 3);
@@ -940,77 +991,77 @@ function QTR_display_constants(lg)
       else
          QuestInfoRewardsFrame.ItemReceiveText:SetFont(QTR_Font2, 13);
          QuestInfoRewardsFrame.ItemReceiveText:SetJustifyH("LEFT");
-         QuestInfoRewardsFrame.ItemReceiveText:SetText(QTR_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemreceive));
+         QuestInfoRewardsFrame.ItemReceiveText:SetText(AS_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemreceive));
          QuestInfoXPFrame.ReceiveText:SetFont(QTR_Font2, 13);
          QuestInfoXPFrame.ReceiveText:SetJustifyH("LEFT");
-         QuestInfoXPFrame.ReceiveText:SetText(QTR_UTF8reverse(QTR_Messages.experience));
+         QuestInfoXPFrame.ReceiveText:SetText(AS_UTF8reverse(QTR_Messages.experience));
       end
       QuestInfoSpellObjectiveLearnLabel:SetFont(QTR_Font2, 13);
       QuestInfoSpellObjectiveLearnLabel:SetJustifyH("LEFT");                     -- wyrównanie od prawego
-      QuestInfoSpellObjectiveLearnLabel:SetText(QTR_UTF8reverse(QTR_Messages.learnspell));
+      QuestInfoSpellObjectiveLearnLabel:SetText(AS_UTF8reverse(QTR_Messages.learnspell));
       QuestInfoRewardsFrame.XPFrame.ReceiveText:SetFont(QTR_Font2, 13);
       QuestInfoRewardsFrame.XPFrame.ReceiveText:SetJustifyH("LEFT");             -- wyrównanie od prawego
-      QuestInfoRewardsFrame.XPFrame.ReceiveText:SetText(QTR_UTF8reverse(QTR_Messages.experience));
+      QuestInfoRewardsFrame.XPFrame.ReceiveText:SetText(AS_UTF8reverse(QTR_Messages.experience));
       MapQuestInfoRewardsFrame.ItemChooseText:SetFont(QTR_Font2, 13);
       local line_size = MapQuestInfoRewardsFrame.ItemChooseText:GetWidth();
       MapQuestInfoRewardsFrame.ItemChooseText:SetJustifyH("RIGHT");               -- wyrównanie do prawego
-      MapQuestInfoRewardsFrame.ItemChooseText:SetText(QTR_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemchoose));
+      MapQuestInfoRewardsFrame.ItemChooseText:SetText(AS_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemchoose));
       MapQuestInfoRewardsFrame.ItemReceiveText:SetFont(QTR_Font2, 13);
       MapQuestInfoRewardsFrame.ItemReceiveText:SetWidth(line_size);
       MapQuestInfoRewardsFrame.ItemReceiveText:SetJustifyH("RIGHT");              -- wyrównanie do prawego
-      MapQuestInfoRewardsFrame.ItemReceiveText:SetText(QTR_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemreceive));
+      MapQuestInfoRewardsFrame.ItemReceiveText:SetText(AS_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemreceive));
       QuestInfoRewardsFrame.PlayerTitleText:SetFont(QTR_Font2, 13);
       QuestInfoRewardsFrame.PlayerTitleText:SetJustifyH("LEFT");                 -- wyrównanie od prawego
-      QuestInfoRewardsFrame.PlayerTitleText:SetText(QTR_UTF8reverse(QTR_Messages.reward_title));
+      QuestInfoRewardsFrame.PlayerTitleText:SetText(AS_UTF8reverse(QTR_Messages.reward_title));
       QuestInfoRewardsFrame.QuestSessionBonusReward:SetFont(QTR_Font2, 13);
       QuestInfoRewardsFrame.QuestSessionBonusReward:SetJustifyH("LEFT");         -- wyrównanie od prawego
-      QuestInfoRewardsFrame.QuestSessionBonusReward:SetText(QTR_UTF8reverse(QTR_Messages.reward_bonus));
+      QuestInfoRewardsFrame.QuestSessionBonusReward:SetText(AS_UTF8reverse(QTR_Messages.reward_bonus));
       if ( QuestInfoRewardsFrame:IsVisible() ) then
          for fontString in QuestInfoRewardsFrame.spellHeaderPool:EnumerateActive() do
             if (fontString:GetText() == REWARD_AURA) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("LEFT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_aura));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_aura));
             end
             if (fontString:GetText() == REWARD_SPELL) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_spell));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_spell));
             end
             if (fontString:GetText() == REWARD_COMPANION) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_companion));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_companion));
             end
             if (fontString:GetText() == REWARD_FOLLOWER) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_follower));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_follower));
             end
             if (fontString:GetText() == REWARD_REPUTATION) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_reputation));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_reputation));
             end
             if (fontString:GetText() == REWARD_TITLE) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_title));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_title));
             end
             if (fontString:GetText() == REWARD_TRADESKILL) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_tradeskill));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_tradeskill));
             end
             if (fontString:GetText() == REWARD_UNLOCK) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_unlock));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_unlock));
             end
             if (fontString:GetText() == REWARD_BONUS) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_bonus));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_bonus));
             end
          end
       end
@@ -1019,47 +1070,47 @@ function QTR_display_constants(lg)
             if (fontString:GetText() == REWARD_AURA) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_aura));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_aura));
             end
             if (fontString:GetText() == REWARD_SPELL) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_spell));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_spell));
             end
             if (fontString:GetText() == REWARD_COMPANION) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_companion));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_companion));
             end
             if (fontString:GetText() == REWARD_FOLLOWER) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_follower));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_follower));
             end
             if (fontString:GetText() == REWARD_REPUTATION) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_reputation));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_reputation));
             end
             if (fontString:GetText() == REWARD_TITLE) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_title));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_title));
             end
             if (fontString:GetText() == REWARD_TRADESKILL) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_tradeskill));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_tradeskill));
             end
             if (fontString:GetText() == REWARD_UNLOCK) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_unlock));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_unlock));
             end
             if (fontString:GetText() == REWARD_BONUS) then
                fontString:SetFont(QTR_Font2, 13);
                fontString:SetJustifyH("RIGHT");         -- wyrównanie od prawego
-               fontString:SetText(QTR_UTF8reverse(QTR_Messages.reward_bonus));
+               fontString:SetText(AS_UTF8reverse(QTR_Messages.reward_bonus));
             end
          end
       end
@@ -1224,6 +1275,7 @@ function QTR_display_constants(lg)
    end
 end
 
+-------------------------------------------------------------------------------------------------------
 
 function QTR_delayed3()
    if (not QTR_wait(1,QTR_delayed4)) then
@@ -1231,11 +1283,13 @@ function QTR_delayed3()
    end
 end
 
+-------------------------------------------------------------------------------------------------------
 
 function QTR_delayed4()
    QTR_QuestPrepare('');
 end;      
 
+-------------------------------------------------------------------------------------------------------
 
 function QTR_PrepareDelay(czas)     -- wywoływane po kliknięciu na nazwę questu z listy NPC
    if (czas==1) then
@@ -1260,11 +1314,12 @@ function QTR_PrepareReload()
    QTR_QuestPrepare('');
 end;      
 
+-------------------------------------------------------------------------------------------------------
 
 -- podmieniaj specjane znaki w tekście
 function QTR_ExpandUnitInfo(msg,OnObjectives)
    msg = string.gsub(msg, "NEW_LINE", "#");
-   msg = string.gsub(msg, "YOUR_NAME", QTR_UTF8reverse(QTR_name));
+   msg = string.gsub(msg, "YOUR_NAME", AS_UTF8reverse(QTR_name));
    
 -- jeszcze obsłużyć YOUR_GENDER(x;y)
    local nr_1, nr_2, nr_3 = 0;
@@ -1315,8 +1370,9 @@ function QTR_ExpandUnitInfo(msg,OnObjectives)
    return msg;
 end
 
+-------------------------------------------------------------------------------------------------------
 
-function QTR_ScrollFrame_OnMouseWheel(self, step)
+local function QTR_ScrollFrame_OnMouseWheel(self, step)
    local newValue = self:GetVerticalScroll() - (step * 15);
    if (newValue < 0) then
       newValue = 0;
@@ -1326,12 +1382,50 @@ function QTR_ScrollFrame_OnMouseWheel(self, step)
    self:SetVerticalScroll(newValue);
 end
 
+-------------------------------------------------------------------------------------------------------
 
+-- Reverses the order of UTF-8 letters in lines of 35 or 32 characters (limit)
+function QTR_LineReverse(s, limit)
+   local retstr = "";
+   if (s and limit) then                           -- check if arguments are not empty (nil)
+		local bytes = strlen(s);
+		local pos = 1;
+		local charbytes;
+		local newstr = "";
+      local counter = 0;
+      local char1;
+		while pos <= bytes do
+			c = strbyte(s, pos);                      -- read the character (odczytaj znak)
+			charbytes = AS_UTF8charbytes(s, pos);    -- count of bytes (liczba bajtów znaku)
+         char1 = strsub(s, pos, pos + charbytes - 1);
+			newstr = newstr .. char1;
+			pos = pos + charbytes;
+         
+         counter = counter + 1;
+         if ((char1 >= "A") and (char1 <= "z")) then
+            counter = counter + 1;        -- latin letters are 2x wider, then Arabic
+         end
+         if ((char1 == "#") or ((char1 == " ") and (counter > limit))) then
+            newstr = string.gsub(newstr, "#", "");
+            retstr = retstr .. AS_UTF8reverse(newstr) .. "\n";
+            newstr = "";
+            counter = 0;
+         end
+      end
+      retstr = retstr .. AS_UTF8reverse(newstr);
+      retstr = string.gsub(retstr, "#", "");
+      retstr = string.gsub(retstr, "\n ", "\n");        -- space after newline code is useless
+      retstr = string.gsub(retstr, "\n\n\n", "\n\n");   -- elimination of redundant newline codes
+   end
+	return retstr;
+end 
 
-QTR = CreateFrame("Frame");
-QTR:SetScript("OnEvent", QTR_OnEvent);
-QTR:RegisterEvent("ADDON_LOADED");
-QTR:RegisterEvent("QUEST_ACCEPTED");
-QTR:RegisterEvent("QUEST_DETAIL");
-QTR:RegisterEvent("QUEST_PROGRESS");
-QTR:RegisterEvent("QUEST_COMPLETE");
+-------------------------------------------------------------------------------------------------------
+
+QTR_f = CreateFrame("Frame");
+QTR_f:SetScript("OnEvent", QTR_OnEvent);
+QTR_f:RegisterEvent("ADDON_LOADED");
+QTR_f:RegisterEvent("QUEST_ACCEPTED");
+QTR_f:RegisterEvent("QUEST_DETAIL");
+QTR_f:RegisterEvent("QUEST_PROGRESS");
+QTR_f:RegisterEvent("QUEST_COMPLETE");
