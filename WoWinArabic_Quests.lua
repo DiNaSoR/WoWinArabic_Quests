@@ -1,6 +1,6 @@
 ﻿-- Addon: WoWinArabic_Quests (wersja: 10.02) 2023.02.03
 -- Note: AddOn displays translated quests in Arabic.
--- الوصف: يتم عرض الترجمة العربية في الإضافة
+-- الوصف: يتم عرض الترجمة العربية في المهام
 -- Opis: AddOn wyświetla przetłumaczone questy w języku arabskim.
 -- Autor: Platine  (e-mail: platine.wow@gmail.com)
 -- Special thanks to DragonArab for helping to create letter reshaping rules.

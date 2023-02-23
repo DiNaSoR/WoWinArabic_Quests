@@ -8,7 +8,7 @@
 ## WWW: https://wowpopolsku.pl
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
-## SavedVariables: QTR_PS
+## SavedVariables: QTR_PS, QTR_SAVED
 
 QuestData_AR.lua
 Arabic_Reshaper.lua
