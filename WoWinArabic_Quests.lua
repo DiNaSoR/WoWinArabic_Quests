@@ -1,6 +1,6 @@
-﻿-- Addon: WoWinArabic_Quests (wersja: 10.02) 2023.02.03
+﻿-- Addon: WoWinArabic_Quests (wersja: 10.03) 2023.02.24
 -- Note: AddOn displays translated quests in Arabic.
--- الوصف: يتم عرض الترجمة العربية في المهام
+-- الوصف: يتم عرض الترجمة العربية في الإضافة
 -- Opis: AddOn wyświetla przetłumaczone questy w języku arabskim.
 -- Autor: Platine  (e-mail: platine.wow@gmail.com)
 -- Special thanks to DragonArab for helping to create letter reshaping rules.
@@ -932,9 +932,11 @@ function QTR_display_constants(lg)
       QuestProgressRequiredItemsText:SetWidth(272);
       QuestProgressRequiredItemsText:SetJustifyH("RIGHT");        -- wyrównanie od prawego
       QuestProgressRequiredItemsText:SetText(AS_UTF8reverse(QTR_Messages.reqitems));
+      CurrentQuestsText:SetWidth(270);
       CurrentQuestsText:SetFont(QTR_Font1, 18);
       CurrentQuestsText:SetJustifyH("RIGHT");                     -- wyrównanie od prawego
       CurrentQuestsText:SetText(AS_UTF8reverse(QTR_Messages.currquests));
+      AvailableQuestsText:SetWidth(270);
       AvailableQuestsText:SetFont(QTR_Font1, 18);
       AvailableQuestsText:SetJustifyH("RIGHT");                   -- wyrównanie od prawego
       AvailableQuestsText:SetText(AS_UTF8reverse(QTR_Messages.avaiquests));
@@ -950,59 +952,121 @@ function QTR_display_constants(lg)
       end
       
       -- stałe elementy okna zadania:
-      QuestInfoRewardsFrame.ItemChooseText:SetFont(QTR_Font2, 13);
+      QuestInfoRewardsFrame.ItemChooseText:SetFont(QTR_Font2, 18);
       QuestInfoRewardsFrame.ItemChooseText:SetWidth(270);
       QuestInfoRewardsFrame.ItemChooseText:SetJustifyH("RIGHT");                  -- wyrównanie od prawego
       QuestInfoRewardsFrame.ItemChooseText:SetText(AS_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemchoose));
-      if (QuestInfoRewardsFrame) then
-         QuestInfoRewardsFrame.ItemReceiveText:ClearAllPoints();
-         QuestInfoRewardsFrame.ItemReceiveText:SetPoint("TOPRIGHT", QuestInfoRewardsFrame, "BOTTOMRIGHT", -16, 30);
-         QuestInfoRewardsFrame.ItemReceiveText:SetFont(QTR_Font2, 13);
-         QuestInfoRewardsFrame.ItemReceiveText:SetJustifyH("RIGHT");                 -- wyrównanie od prawego
-         if (QTR_quest_LG[QTR_quest_ID].itemreceive) then
-            QuestInfoRewardsFrame.ItemReceiveText:SetText(AS_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemreceive));
-         else
-            QuestInfoRewardsFrame.ItemReceiveText:SetText(AS_UTF8reverse(QTR_Messages.itemreceiv0));
-         end
-         QuestInfoMoneyFrame:ClearAllPoints();
-         QuestInfoMoneyFrame:SetPoint("BOTTOMRIGHT", QuestInfoRewardsFrame.ItemReceiveText, "BOTTOMLEFT", -10, -5);
-         QuestInfoXPFrame:SetWidth(270);
-         QuestInfoXPFrame:ClearAllPoints();
-         QuestInfoXPFrame:SetPoint("TOPRIGHT", QuestInfoRewardsFrame.ItemReceiveText, "BOTTOMRIGHT", 0, -5);
-         QuestInfoXPFrame.ReceiveText:SetFont(QTR_Font2, 13);
-         QuestInfoXPFrame.ReceiveText:ClearAllPoints();
-         QuestInfoXPFrame.ReceiveText:SetPoint("BOTTOMRIGHT", QuestInfoXPFrame, "BOTTOMRIGHT", -2, 0);
-         QuestInfoXPFrame.ReceiveText:SetJustifyH("LEFT");                          -- wyrównanie od prawego
-         QuestInfoXPFrame.ReceiveText:SetText(AS_UTF8reverse(QTR_Messages.experience));
-         QuestInfoXPFrame.ValueText:ClearAllPoints();
-         if (QTR_quest_LG[QTR_quest_ID].itemreceive) then
-            if (AS_UTF8len(QTR_quest_LG[QTR_quest_ID].itemreceive) < 10) then
-               QuestInfoXPFrame.ValueText:SetPoint("TOPRIGHT", QuestInfoXPFrame.ReceiveText, "TOPLEFT", -20, 3);
-            elseif (AS_UTF8len(QTR_quest_LG[QTR_quest_ID].itemreceive) < 15) then
-               QuestInfoXPFrame.ValueText:SetPoint("TOPRIGHT", QuestInfoXPFrame.ReceiveText, "TOPLEFT", -40, 3);
-            elseif (AS_UTF8len(QTR_quest_LG[QTR_quest_ID].itemreceive) < 20) then
-               QuestInfoXPFrame.ValueText:SetPoint("TOPRIGHT", QuestInfoXPFrame.ReceiveText, "TOPLEFT", -50, 3);
-            else
-               QuestInfoXPFrame.ValueText:SetPoint("TOPRIGHT", QuestInfoXPFrame.ReceiveText, "TOPLEFT", -70, 3);
-            end
-         else
-            QuestInfoXPFrame.ValueText:SetPoint("CENTER", QuestInfoXPFrame);
-         end
-      else
-         QuestInfoRewardsFrame.ItemReceiveText:SetFont(QTR_Font2, 13);
-         QuestInfoRewardsFrame.ItemReceiveText:SetJustifyH("LEFT");
-         QuestInfoRewardsFrame.ItemReceiveText:SetText(AS_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemreceive));
-         QuestInfoXPFrame.ReceiveText:SetFont(QTR_Font2, 13);
-         QuestInfoXPFrame.ReceiveText:SetJustifyH("LEFT");
-         QuestInfoXPFrame.ReceiveText:SetText(AS_UTF8reverse(QTR_Messages.experience));
+      
+      QuestInfoRewardsFrame.ItemReceiveText:SetText(" ");
+      QuestInfoRewardsFrame.XPFrame.ReceiveText:SetText(" ");
+      QuestInfoXPFrame.ReceiveText:SetText(" ");
+      
+      -- własne obiekty z tekstami arabskimi
+      if (not QTR_QuestDetail_ItemReceiveText) then
+         QTR_QuestDetail_ItemReceiveText = QuestDetailScrollChildFrame:CreateFontString(nil, "ARTWORK");
+         QTR_QuestDetail_ItemReceiveText:SetFontObject(GameFontBlack);
+         QTR_QuestDetail_ItemReceiveText:SetJustifyH("RIGHT"); 
+         QTR_QuestDetail_ItemReceiveText:SetJustifyV("TOP");
+         QTR_QuestDetail_ItemReceiveText:ClearAllPoints();
+         QTR_QuestDetail_ItemReceiveText:SetPoint("TOPRIGHT", QuestInfoRewardsFrame.ItemReceiveText, "TOPLEFT", 270, 2);
+         QTR_QuestDetail_ItemReceiveText:SetFont(QTR_Font2, 18);
       end
+      if (QTR_quest_LG[QTR_quest_ID].itemreceive) then
+         QTR_QuestDetail_ItemReceiveText:SetText(AS_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemreceive));
+      else
+         QTR_QuestDetail_ItemReceiveText:SetText(AS_UTF8reverse(QTR_Messages.itemreceiv0));
+      end
+      QTR_QuestDetail_ItemReceiveText:Show();
+      if (not QTR_QuestReward_ItemReceiveText) then
+         QTR_QuestReward_ItemReceiveText = QuestRewardScrollChildFrame:CreateFontString(nil, "ARTWORK");
+         QTR_QuestReward_ItemReceiveText:SetFontObject(GameFontBlack);
+         QTR_QuestReward_ItemReceiveText:SetJustifyH("RIGHT"); 
+         QTR_QuestReward_ItemReceiveText:SetJustifyV("TOP");
+         QTR_QuestReward_ItemReceiveText:ClearAllPoints();
+         QTR_QuestReward_ItemReceiveText:SetPoint("TOPRIGHT", QuestInfoRewardsFrame.ItemReceiveText, "TOPLEFT", 270, 2);
+         QTR_QuestReward_ItemReceiveText:SetFont(QTR_Font2, 18);
+      end
+      if (QTR_quest_LG[QTR_quest_ID].itemreceive) then
+         QTR_QuestReward_ItemReceiveText:SetText(AS_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemreceive));
+      else
+         QTR_QuestReward_ItemReceiveText:SetText(AS_UTF8reverse(QTR_Messages.itemreceiv0));
+      end
+      if (not QTR_QuestDetail_InfoXP) then
+         QTR_QuestDetail_InfoXP = QuestDetailScrollChildFrame:CreateFontString(nil, "ARTWORK");
+         QTR_QuestDetail_InfoXP:SetFontObject(GameFontBlack);
+         QTR_QuestDetail_InfoXP:SetJustifyH("RIGHT"); 
+         QTR_QuestDetail_InfoXP:SetJustifyV("TOP");
+         QTR_QuestDetail_InfoXP:ClearAllPoints();
+         QTR_QuestDetail_InfoXP:SetPoint("TOPRIGHT", QuestInfoRewardsFrame.XPFrame.ReceiveText, "TOPLEFT", 270, 2);
+         QTR_QuestDetail_InfoXP:SetFont(QTR_Font2, 18);
+      end
+      QTR_QuestDetail_InfoXP:SetText(AS_UTF8reverse(QTR_Messages.experience));
+      if (not QTR_QuestReward_InfoXP) then
+         QTR_QuestReward_InfoXP = QuestRewardScrollChildFrame:CreateFontString(nil, "ARTWORK");
+         QTR_QuestReward_InfoXP:SetFontObject(GameFontBlack);
+         QTR_QuestReward_InfoXP:SetJustifyH("RIGHT"); 
+         QTR_QuestReward_InfoXP:SetJustifyV("TOP");
+         QTR_QuestReward_InfoXP:ClearAllPoints();
+         QTR_QuestReward_InfoXP:SetPoint("TOPRIGHT", QuestInfoRewardsFrame.XPFrame.ReceiveText, "TOPLEFT", 270, 2);
+         QTR_QuestReward_InfoXP:SetFont(QTR_Font2, 18);
+      end
+      QTR_QuestReward_InfoXP:SetText(AS_UTF8reverse(QTR_Messages.experience));
+      
+      QTR_QuestDetail_ItemReceiveText:Show();
+      QTR_QuestReward_ItemReceiveText:Show();
+      QTR_QuestDetail_InfoXP:Show();
+      QTR_QuestReward_InfoXP:Show();
+      
+      if (QuestInfoMoneyFrame:IsVisible()) then
+         QuestInfoXPFrame.ValueText:ClearAllPoints();
+         QuestInfoXPFrame.ValueText:SetPoint("TOPRIGHT", QuestInfoMoneyFrame, "BOTTOMRIGHT", -10, 0);
+      end
+      
+      local max_len = AS_UTF8len(QTR_QuestDetail_ItemReceiveText:GetText());
+      local money_len = QuestInfoMoneyFrame:GetWidth();
+      local spaces05 = "     ";
+      local spaces10 = "          ";
+      local spaces15 = "               ";
+      local spaces20 = "                    ";
+--print(max_len,money_len)      
+      if (max_len < 10) then
+         if (money_len < 70) then
+            QuestInfoRewardsFrame.ItemReceiveText:SetText(spaces20);
+            QuestInfoRewardsFrame.XPFrame.ReceiveText:SetText(spaces20);
+            QuestInfoXPFrame.ReceiveText:SetText(spaces20);
+         elseif (money_len < 90) then
+            QuestInfoRewardsFrame.ItemReceiveText:SetText(spaces15);
+            QuestInfoRewardsFrame.XPFrame.ReceiveText:SetText(spaces15);
+            QuestInfoXPFrame.ReceiveText:SetText(spaces15);
+         elseif (money_len < 110) then
+            QuestInfoRewardsFrame.ItemReceiveText:SetText(spaces10);
+            QuestInfoRewardsFrame.XPFrame.ReceiveText:SetText(spaces10);
+            QuestInfoXPFrame.ReceiveText:SetText(spaces10);
+         elseif (money_len < 130) then
+            QuestInfoRewardsFrame.ItemReceiveText:SetText(spaces05);
+            QuestInfoRewardsFrame.XPFrame.ReceiveText:SetText(spaces05);
+            QuestInfoXPFrame.ReceiveText:SetText(spaces05);
+         end
+      elseif (max_len <20) then
+         if (money_len < 70) then
+            QuestInfoRewardsFrame.ItemReceiveText:SetText(spaces15);
+            QuestInfoRewardsFrame.XPFrame.ReceiveText:SetText(spaces15);
+            QuestInfoXPFrame.ReceiveText:SetText(spaces15);
+         elseif (money_len < 90) then
+            QuestInfoRewardsFrame.ItemReceiveText:SetText(spaces10);
+            QuestInfoRewardsFrame.XPFrame.ReceiveText:SetText(spaces10);
+            QuestInfoXPFrame.ReceiveText:SetText(spaces15);
+         elseif (money_len < 110) then
+            QuestInfoRewardsFrame.ItemReceiveText:SetText(spaces05);
+            QuestInfoRewardsFrame.XPFrame.ReceiveText:SetText(spaces05);
+            QuestInfoXPFrame.ReceiveText:SetText(spaces05);
+         end      
+      end
+      
       QuestInfoSpellObjectiveLearnLabel:SetFont(QTR_Font2, 13);
       QuestInfoSpellObjectiveLearnLabel:SetJustifyH("LEFT");                     -- wyrównanie od prawego
       QuestInfoSpellObjectiveLearnLabel:SetText(AS_UTF8reverse(QTR_Messages.learnspell));
-      QuestInfoRewardsFrame.XPFrame.ReceiveText:SetFont(QTR_Font2, 13);
-      QuestInfoRewardsFrame.XPFrame.ReceiveText:SetJustifyH("LEFT");             -- wyrównanie od prawego
-      QuestInfoRewardsFrame.XPFrame.ReceiveText:SetText(AS_UTF8reverse(QTR_Messages.experience));
-      MapQuestInfoRewardsFrame.ItemChooseText:SetFont(QTR_Font2, 13);
+      MapQuestInfoRewardsFrame.ItemChooseText:SetFont(QTR_Font2, 16);
       local line_size = MapQuestInfoRewardsFrame.ItemChooseText:GetWidth();
       MapQuestInfoRewardsFrame.ItemChooseText:SetJustifyH("RIGHT");               -- wyrównanie do prawego
       MapQuestInfoRewardsFrame.ItemChooseText:SetText(AS_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemchoose));
@@ -1146,6 +1210,11 @@ function QTR_display_constants(lg)
          end
       end
       
+      QTR_QuestDetail_ItemReceiveText:Hide();
+      QTR_QuestReward_ItemReceiveText:Hide();
+      QTR_QuestDetail_InfoXP:Hide();
+      QTR_QuestReward_InfoXP:Hide();
+      
       -- stałe elementy okna zadania:
       QuestInfoRewardsFrame.ItemChooseText:SetFont(Original_Font2, 13);
       QuestInfoRewardsFrame.ItemChooseText:SetJustifyH("LEFT");         -- wyrównanie od lewego
@@ -1157,7 +1226,7 @@ function QTR_display_constants(lg)
       QuestInfoSpellObjectiveLearnLabel:SetJustifyH("LEFT");         -- wyrównanie od lewego
       QuestInfoSpellObjectiveLearnLabel:SetText(QTR_MessOrig.learnspell);
       QuestInfoXPFrame.ReceiveText:SetFont(Original_Font2, 13);
-      QuestInfoXPFrame.ReceiveText:SetJustifyH("LEFT");         -- wyrównanie od lewego
+--      QuestInfoXPFrame.ReceiveText:SetJustifyH("LEFT");         -- wyrównanie od lewego / nie zmieniam tego parametru
       QuestInfoXPFrame.ReceiveText:SetText(QTR_MessOrig.experience);
       QuestInfoRewardsFrame.XPFrame.ReceiveText:SetFont(Original_Font2, 13);
       QuestInfoRewardsFrame.XPFrame.ReceiveText:SetJustifyH("LEFT");         -- wyrównanie od lewego
