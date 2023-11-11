@@ -1,15 +1,14 @@
-﻿-- Addon: WoWinArabic_Quests (wersja: 10.03) 2023.02.24
+﻿-- Addon: WoWinArabic_Quests (version: 10.2) 2023.11.12
 -- Note: AddOn displays translated quests in Arabic.
 -- الوصف: يتم عرض الترجمة العربية في المهام
--- Opis: AddOn wyświetla przetłumaczone questy w języku arabskim.
 -- Autor: Platine  (e-mail: platine.wow@gmail.com)
 -- Special thanks to DragonArab for helping to create letter reshaping rules.
 
 -- Zmienne lokalne
 local QTR_version = GetAddOnMetadata("WoWinArabic_Quests", "Version");
-local QTR_limit1 = 35;        -- limit znaków w linii opisującej zadanie w Map&Quest Log
-local QTR_limit2 = 32;        -- character limit in the line describing the quest in the conversation with the NPC window
-local QTR_limit3 = 18;        -- character limit in the line describing the monster in QuestNPCModelText
+local QTR_limit1 = 45;        -- limit znaków w linii opisującej zadanie w Map&Quest Log
+local QTR_limit2 = 35;        -- character limit in the line describing the quest in the conversation with the NPC window
+local QTR_limit3 = 25;        -- character limit in the line describing the monster in QuestNPCModelText
 local QTR_onDebug = false;      
 local QTR_name = UnitName("player");
 local QTR_class= UnitClass("player");
@@ -798,6 +797,13 @@ function QTR_Translate_On(typ)
 --   end
    
    if (typ==1) then			-- pełne przełączenie (jest tłumaczenie)
+            -- Set vertical justification for all text elements
+            QuestInfoTitleHeader:SetJustifyV("TOP");
+            QuestProgressTitleText:SetJustifyV("TOP");
+            QuestInfoDescriptionText:SetJustifyV("TOP");
+            QuestInfoObjectivesText:SetJustifyV("TOP");
+            QuestProgressText:SetJustifyV("TOP");
+            QuestInfoRewardText:SetJustifyV("TOP");
       local numer_ID = QTR_quest_ID;
       str_ID = tostring(numer_ID);
       if (numer_ID>0 and QTR_QuestData[str_ID]) then	-- przywróć przetłumaczoną wersję napisów
@@ -952,7 +958,7 @@ function QTR_display_constants(lg)
       end
       
       -- stałe elementy okna zadania:
-      QuestInfoRewardsFrame.ItemChooseText:SetFont(QTR_Font2, 18);
+      QuestInfoRewardsFrame.ItemChooseText:SetFont(QTR_Font2, 14);
       QuestInfoRewardsFrame.ItemChooseText:SetWidth(270);
       QuestInfoRewardsFrame.ItemChooseText:SetJustifyH("RIGHT");                  -- wyrównanie od prawego
       QuestInfoRewardsFrame.ItemChooseText:SetText(AS_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemchoose));
@@ -969,7 +975,7 @@ function QTR_display_constants(lg)
          QTR_QuestDetail_ItemReceiveText:SetJustifyV("TOP");
          QTR_QuestDetail_ItemReceiveText:ClearAllPoints();
          QTR_QuestDetail_ItemReceiveText:SetPoint("TOPRIGHT", QuestInfoRewardsFrame.ItemReceiveText, "TOPLEFT", 270, 2);
-         QTR_QuestDetail_ItemReceiveText:SetFont(QTR_Font2, 18);
+         QTR_QuestDetail_ItemReceiveText:SetFont(QTR_Font2, 14);
       end
       if (QTR_quest_LG[QTR_quest_ID].itemreceive) then
          QTR_QuestDetail_ItemReceiveText:SetText(AS_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemreceive));
@@ -984,7 +990,7 @@ function QTR_display_constants(lg)
          QTR_QuestReward_ItemReceiveText:SetJustifyV("TOP");
          QTR_QuestReward_ItemReceiveText:ClearAllPoints();
          QTR_QuestReward_ItemReceiveText:SetPoint("TOPRIGHT", QuestInfoRewardsFrame.ItemReceiveText, "TOPLEFT", 270, 2);
-         QTR_QuestReward_ItemReceiveText:SetFont(QTR_Font2, 18);
+         QTR_QuestReward_ItemReceiveText:SetFont(QTR_Font2, 14);
       end
       if (QTR_quest_LG[QTR_quest_ID].itemreceive) then
          QTR_QuestReward_ItemReceiveText:SetText(AS_UTF8reverse(QTR_quest_LG[QTR_quest_ID].itemreceive));
@@ -998,7 +1004,7 @@ function QTR_display_constants(lg)
          QTR_QuestDetail_InfoXP:SetJustifyV("TOP");
          QTR_QuestDetail_InfoXP:ClearAllPoints();
          QTR_QuestDetail_InfoXP:SetPoint("TOPRIGHT", QuestInfoRewardsFrame.XPFrame.ReceiveText, "TOPLEFT", 270, 2);
-         QTR_QuestDetail_InfoXP:SetFont(QTR_Font2, 18);
+         QTR_QuestDetail_InfoXP:SetFont(QTR_Font2, 14);
       end
       QTR_QuestDetail_InfoXP:SetText(AS_UTF8reverse(QTR_Messages.experience));
       if (not QTR_QuestReward_InfoXP) then
@@ -1008,7 +1014,7 @@ function QTR_display_constants(lg)
          QTR_QuestReward_InfoXP:SetJustifyV("TOP");
          QTR_QuestReward_InfoXP:ClearAllPoints();
          QTR_QuestReward_InfoXP:SetPoint("TOPRIGHT", QuestInfoRewardsFrame.XPFrame.ReceiveText, "TOPLEFT", 270, 2);
-         QTR_QuestReward_InfoXP:SetFont(QTR_Font2, 18);
+         QTR_QuestReward_InfoXP:SetFont(QTR_Font2, 14);
       end
       QTR_QuestReward_InfoXP:SetText(AS_UTF8reverse(QTR_Messages.experience));
       

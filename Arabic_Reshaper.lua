@@ -1,4 +1,4 @@
-﻿-- Arabic Reshaper for WoWinArabic addons (2023.02.22)
+﻿-- Arabic Reshaper for WoWinArabic addons (2023.11.12)
 -- Author: Platine  (e-mail: platine.wow@gmail.com)
 -- Based on UTF8 library by Kyle Smith
 -- Special thanks to DragonArab for create letter reshaping tables and ligatures.
@@ -7,66 +7,66 @@ local debug_show_form = 0;
 
 -- define a table of reshaping rules for Arabic characters
 AS_Reshaping_Rules = {
-   ["ا"] = {isolated = "ا", initial = "ا", middle = "ﺎ", final = "ﺎ"},-- ALEF
-   ["ﺁ"] = {isolated = "ﺁ", initial = "ﺁ", middle = "ﺂ", final = "ﺂ"},-- ALEF WITH MADA ABOVE
-   ["أ"] = {isolated = "أ", initial = "أ", middle = "ﺄ", final = "ﺄ"},-- ALEF WITH HAMZA ABOVE
-   ["إ"] = {isolated = "إ", initial = "إ", middle = "ﺈ", final = "ﺈ"},-- ALEF WITH HAMZA BELOW
-   ["ب"] = {isolated = "ب", initial = "ﺑ", middle = "ﺒ", final = "ﺐ"},-- BA
-   ["ت"] = {isolated = "ت", initial = "ﺗ", middle = "ﺘ", final = "ﺖ"},-- TA
-   ["ث"] = {isolated = "ث", initial = "ﺛ", middle = "ﺜ", final = "ﺚ"},-- THA
-   ["ج"] = {isolated = "ج", initial = "ﺟ", middle = "ﺠ", final = "ﺞ"},-- JIM
-   ["ح"] = {isolated = "ح", initial = "ﺣ", middle = "ﺤ", final = "ﺢ"},-- HAH
-   ["خ"] = {isolated = "خ", initial = "ﺧ", middle = "ﺨ", final = "ﺦ"},-- KHAH
-   ["د"] = {isolated = "د", initial = "د", middle = "ﺪ", final = "ﺪ"},-- DAL
-   ["ذ"] = {isolated = "ذ", initial = "ذ", middle = "ﺬ", final = "ﺬ"},-- DHAL
-   ["ر"] = {isolated = "ر", initial = "ر", middle = "ﺮ", final = "ﺮ"},-- RA
-   ["ز"] = {isolated = "ز", initial = "ز", middle = "ﺰ", final = "ﺰ"},-- ZAIN
-   ["س"] = {isolated = "س", initial = "ﺳ", middle = "ﺴ", final = "ﺲ"},-- SIN
-   ["ش"] = {isolated = "ش", initial = "ﺷ", middle = "ﺸ", final = "ﺶ"},-- SHIN
-   ["ص"] = {isolated = "ص", initial = "ﺻ", middle = "ﺼ", final = "ﺺ"},-- SAD
-   ["ض"] = {isolated = "ض", initial = "ﺿ", middle = "ﻀ", final = "ﺾ"},-- DAD
-   ["ط"] = {isolated = "ط", initial = "ﻃ", middle = "ﻂ", final = "ﻂ"},-- TAH
-   ["ظ"] = {isolated = "ظ", initial = "ﻇ", middle = "ﻈ", final = "ﻆ"},-- ZAH
-   ["ع"] = {isolated = "ع", initial = "ﻋ", middle = "ﻌ", final = "ﻊ"},-- AIN
-   ["غ"] = {isolated = "غ", initial = "ﻏ", middle = "ﻐ", final = "ﻎ"},-- GHAIN
-   ["ف"] = {isolated = "ف", initial = "ﻓ", middle = "ﻔ", final = "ﻒ"},-- FEH
-   ["ق"] = {isolated = "ق", initial = "ﻗ", middle = "ﻘ", final = "ﻖ"},-- QAF
-   ["ك"] = {isolated = "ك", initial = "ﻛ", middle = "ﻜ", final = "ﻚ"},-- KAF
-   ["ل"] = {isolated = "ل", initial = "ﻟ", middle = "ﻠ", final = "ﻞ"},-- LAM
-   ["م"] = {isolated = "م", initial = "ﻣ", middle = "ﻤ", final = "ﻢ"},-- MIM
-   ["ن"] = {isolated = "ن", initial = "ﻧ", middle = "ﻨ", final = "ﻦ"},-- NUN
-   ["ي"] = {isolated = "ي", initial = "ﻳ", middle = "ﻴ", final = "ﻲ"},-- YA
-   ["ئ"] = {isolated = "ئ", initial = "ﺋ", middle = "ﺌ", final = "ﺊ"},-- YEH WITH HAMZA ABOVE
-   ["ى"] = {isolated = "ى", initial = "ى", middle = "ى", final = "ﻰ"},-- ALEF MAKSURA
-   ["و"] = {isolated = "و", initial = "و", middle = "ﻮ", final = "ﻮ"},-- WAW
-   ["ؤ"] = {isolated = "ؤ", initial = "ؤ", middle = "ﺆ", final = "ﺆ"},-- WAW WITH HAMZA ABOVE
-   ["ه"] = {isolated = "ﻩ", initial = "ﻫ", middle = "ﻬ", final = "ﻪ"},-- HAH
-   ["ة"] = {isolated = "ة", initial = "ة", middle = "ة", final = "ﺔ"},-- TAH
-   ["ﻻ"] = {isolated = "ﻻ", initial = "ﻻ", middle = "ﻼ", final = "ﻼ"},-- LAM WITH ALEF
-   ["ﻵ"] = {isolated = "ﻵ", initial = "ﻵ", middle = "ﻶ", final = "ﻶ"},-- LAM WITH ALEF WITH MADDA
-   ["لأ"] = {isolated = "ﻷ", initial = "ﻷ", middle = "ﻸ", final = "ﻸ"},-- LAM WITH ALEF WITH HAMZA ABOVE
-   ["لإ"] = {isolated = "ﻹ", initial = "ﻹ", middle = "ﻺ", final = "ﻺ"},-- LAM WITH ALEF WITH HAMZA BELOW
-   ["ء"] = {isolated = "ء", initial = "ﺀ", middle = "ﺀ", final = "ﺀ"},-- HAMZA
+   ["\216\167"] = {isolated = "\216\167", initial = "\216\167", middle = "\239\186\142", final = "\239\186\142"},-- ALEF
+   ["\239\186\129"] = {isolated = "\239\186\129", initial = "\239\186\129", middle = "\239\186\130", final = "\239\186\130"},-- ALEF WITH MADDA ABOVE
+   ["\216\163"] = {isolated = "\216\163", initial = "\216\163", middle = "\239\186\132", final = "\239\186\132"},-- ALEF WITH HAMZA ABOVE 
+   ["\216\165"] = {isolated = "\216\165", initial = "\216\165", middle = "\239\186\136", final = "\239\186\136"},-- ALEF WITH HAMZA BELOW  
+   ["\216\168"] = {isolated = "\216\168", initial = "\239\186\145", middle = "\239\186\146", final = "\239\186\144"},-- BEH   
+   ["\216\170"] = {isolated = "\216\170", initial = "\239\186\151", middle = "\239\186\152", final = "\239\186\150"},-- TEH   
+   ["\216\171"] = {isolated = "\216\171", initial = "\239\186\155", middle = "\239\186\156", final = "\239\186\154"},-- THA
+   ["\216\172"] = {isolated = "\216\172", initial = "\239\186\159", middle = "\239\186\160", final = "\239\186\158"},-- JIM
+   ["\216\173"] = {isolated = "\216\173", initial = "\239\186\163", middle = "\239\186\164", final = "\239\186\162"},-- HAH
+   ["\216\174"] = {isolated = "\216\174", initial = "\239\186\167", middle = "\239\186\168", final = "\239\186\166"},-- KHAH
+   ["\216\175"] = {isolated = "\216\175", initial = "\216\175", middle = "\239\186\170", final = "\239\186\170"},-- DAL
+   ["\216\176"] = {isolated = "\216\176", initial = "\216\176", middle = "\239\186\172", final = "\239\186\172"},-- DHAL
+   ["\216\177"] = {isolated = "\216\177", initial = "\216\177", middle = "\239\186\174", final = "\239\186\174"},-- RA
+   ["\216\178"] = {isolated = "\216\178", initial = "\216\178", middle = "\239\186\176", final = "\239\186\176"},-- ZAIN
+   ["\216\179"] = {isolated = "\216\179", initial = "\239\186\179", middle = "\239\186\180", final = "\239\186\178"},-- SIN
+   ["\216\180"] = {isolated = "\216\180", initial = "\239\186\183", middle = "\239\186\184", final = "\239\186\182"},-- SHIN
+   ["\216\181"] = {isolated = "\216\181", initial = "\239\186\187", middle = "\239\186\188", final = "\239\186\186"},-- SAD
+   ["\216\182"] = {isolated = "\216\182", initial = "\239\186\191", middle = "\239\187\128", final = "\239\186\190"},-- DAD
+   ["\216\183"] = {isolated = "\216\183", initial = "\239\187\131", middle = "\239\187\132", final = "\239\187\130"},-- TAH
+   ["\216\184"] = {isolated = "\216\184", initial = "\239\187\135", middle = "\239\187\136", final = "\239\187\134"},-- ZAH
+   ["\216\185"] = {isolated = "\216\185", initial = "\239\187\139", middle = "\239\187\140", final = "\239\187\138"},-- AIN
+   ["\216\186"] = {isolated = "\216\186", initial = "\239\187\143", middle = "\239\187\144", final = "\239\187\142"},-- GHAIN
+   ["\217\129"] = {isolated = "\217\129", initial = "\239\187\147", middle = "\239\187\148", final = "\239\187\146"},-- FEH
+   ["\217\130"] = {isolated = "\217\130", initial = "\239\187\151", middle = "\239\187\152", final = "\239\187\150"},-- QAF
+   ["\217\131"] = {isolated = "\217\131", initial = "\239\187\155", middle = "\239\187\156", final = "\239\187\154"},-- KAF
+   ["\217\132"] = {isolated = "\217\132", initial = "\239\187\159", middle = "\239\187\160", final = "\239\187\158"},-- LAM
+   ["\217\133"] = {isolated = "\217\133", initial = "\239\187\163", middle = "\239\187\164", final = "\239\187\162"},-- MIM
+   ["\217\134"] = {isolated = "\217\134", initial = "\239\187\167", middle = "\239\187\168", final = "\239\187\166"},-- NUN
+   ["\217\138"] = {isolated = "\217\138", initial = "\239\187\179", middle = "\239\187\180", final = "\239\187\178"},-- YA
+   ["\216\166"] = {isolated = "\216\166", initial = "\239\186\139", middle = "\239\186\140", final = "\239\186\138"},-- YEH WITH HAMZA ABOVE
+   ["\217\137"] = {isolated = "\217\137", initial = "\217\137", middle = "\217\137", final = "\239\187\176"},-- ALEF MAKSURA
+   ["\217\136"] = {isolated = "\217\136", initial = "\217\136", middle = "\239\187\174", final = "\239\187\174"},-- WAW
+   ["\216\164"] = {isolated = "\216\164", initial = "\216\164", middle = "\239\186\134", final = "\239\186\134"},-- WAW WITH HAMZA ABOVE
+   ["\217\135"] = {isolated = "\239\187\169", initial = "\239\187\171", middle = "\239\187\172", final = "\239\187\170"},-- HAH
+   ["\216\169"] = {isolated = "\216\169", initial = "\216\169", middle = "\216\169", final = "\239\186\148"},-- TAH
+   ["\239\187\187"] = {isolated = "\239\187\187", initial = "\239\187\187", middle = "\239\187\188", final = "\239\187\188"},-- LAM WITH ALEF
+   ["\239\187\181"] = {isolated = "\239\187\181", initial = "\239\187\181", middle = "\239\187\182", final = "\239\187\182"},-- LAM WITH ALEF WITH MADDA
+   ["\217\132\216\163"] = {isolated = "\239\187\183", initial = "\239\187\183", middle = "\239\187\184", final = "\239\187\184"},-- LAM WITH ALEF WITH HAMZA ABOVE
+   ["\217\132\216\165"] = {isolated = "\239\187\185", initial = "\239\187\185", middle = "\239\187\186", final = "\239\187\186"},-- LAM WITH ALEF WITH HAMZA BELOW
+   ["\216\161"] = {isolated = "\216\161", initial = "\239\186\128", middle = "\239\186\128", final = "\239\186\128"},-- HAMZA
    };
-
+   
 AS_Reshaping_Rules2 = {
-   ["ل".."ا"] = {isolated = "ﻻ", initial="ﻻ",  middle="ﻼ",  final="ﻼ"},            -- Arabic ligature LAM with ALEF
-   ["ل".."أ"] = {isolated = "ﻷ", initial="ﻷ",  middle="ﻸ",  final="ﻸ"},            -- Arabic ligature LAM with ALEF with HAMZA above
-   ["ل".."إ"] = {isolated = "ﻹ", initial="ﻹ",  middle="ﻺ",  final="ﻺ"},            -- Arabic ligature LAM with ALEF with HAMZA below
-   ["ل".."آ"] = {isolated = "ﻵ", initial="ﻵ",  middle="ﻶ",  final="ﻶ"},            -- Arabic ligature LAM with ALEF with MADDA
+   ["\217\132".."\216\167"] = {isolated = "\239\187\187", initial="\239\187\187",  middle="\239\187\188",  final="\239\187\188"},            -- Arabic ligature LAM with ALEF
+   ["\217\132".."\216\163"] = {isolated = "\239\187\183", initial="\239\187\183",  middle="\239\187\184",  final="\239\187\184"},            -- Arabic ligature LAM with ALEF with HAMZA above
+   ["\217\132".."\216\165"] = {isolated = "\239\187\185", initial="\239\187\185",  middle="\239\187\186",  final="\239\187\186"},            -- Arabic ligature LAM with ALEF with HAMZA below
+   ["\217\132".."\216\162"] = {isolated = "\239\187\181", initial="\239\187\181",  middle="\239\187\182",  final="\239\187\182"},            -- Arabic ligature LAM with ALEF with MADDA
    --Test
-   ["إ".."ع"] = {isolated = "0",    initial="ﻋإ",  middle="ﻋﺈ",   final="3"},           -- Arabic ligature ALEF with Hamaz below + AIN Middle
-   ["ء".."و"] = {isolated = "وء",   initial="وء",  middle="وء",   final="وء"},
-   ["ي".."ء"] = {isolated = "0",    initial="1",   middle="ءﻲ",   final="3"},        
+   --["إ".."ع"] = {isolated = "0",    initial="ﻋإ",  middle="ﻋﺈ",   final="3"},           -- Arabic ligature ALEF with Hamaz below + AIN Middle
+   --["ء".."و"] = {isolated = "وء",   initial="وء",  middle="وء",   final="وء"},
+   --["ي".."ء"] = {isolated = "0",    initial="1",   middle="ءﻲ",   final="3"},        
    };
 
 AS_Reshaping_Rules3 = {
-   ["ا".."ل".."آ"] = {isolated = "ﻵا",  initial="ﻵا", middle="ﻵا", final="ﻶا"},        -- Arabic ligature ALEF+LAM+(ALEF with MADA)
-   ["ا".."ل".."أ"] = {isolated = "ﻷا",  initial="ﻷا", middle="ﻷا", final="ﻸا"},        -- Arabic ligature ALEF+LAM+(ALEF with HAMZA)
-   ["ا".."ل".."إ"] = {isolated = "ﻹا",  initial="ﻹا", middle="ﻹا", final="ﻺا"},        -- Arabic ligature ALEF+LAM+(ALEF with HAMZA Below)
-   ["ا".."ل".."ا"] = {isolated = "ﻻا",  initial="ﻻا", middle="ﻻا", final="ﻼا"},        -- Arabic ligature ALEF+LAM+(ALEF with ALEF)
-   ["ش".."ي".."ء"] = {isolated = "ءﻲﺷ",  initial="ءﻲﺷ", middle="ءﻲﺸ", final="ءﻲﺸ"},    -- Arabic ligature SHIN+YEH+HAMZA Below
-   ["ل".."ا".."ز"] = {isolated = "زﻻ",  initial="زﻻ", middle="زﻼ", final="زﻼ"},        -- Arabic ligature LAM+ALEF+ZAIN
+   --["ا".."ل".."آ"] = {isolated = "ﻵا",  initial="ﻵا", middle="ﻵا", final="ﻶا"},        -- Arabic ligature ALEF+LAM+(ALEF with MADA)
+   --["ا".."ل".."أ"] = {isolated = "ﻷا",  initial="ﻷا", middle="ﻷا", final="ﻸا"},        -- Arabic ligature ALEF+LAM+(ALEF with HAMZA)
+   --["ا".."ل".."إ"] = {isolated = "ﻹا",  initial="ﻹا", middle="ﻹا", final="ﻺا"},        -- Arabic ligature ALEF+LAM+(ALEF with HAMZA Below)
+   --["ا".."ل".."ا"] = {isolated = "ﻻا",  initial="ﻻا", middle="ﻻا", final="ﻼا"},        -- Arabic ligature ALEF+LAM+(ALEF with ALEF)
+   --["ش".."ي".."ء"] = {isolated = "ءﻲﺷ",  initial="ءﻲﺷ", middle="ءﻲﺸ", final="ءﻲﺸ"},    -- Arabic ligature SHIN+YEH+HAMZA Below
+   --["ل".."ا".."ز"] = {isolated = "زﻻ",  initial="زﻻ", middle="زﻼ", final="زﻼ"},        -- Arabic ligature LAM+ALEF+ZAIN
    };
 
 -------------------------------------------------------------------------------------------------------
@@ -328,21 +328,33 @@ function AS_UTF8reverse(s)
          end
 
          -- now modifications to the form of the letter depending on the preceding special letters   
-         if ((char0 == "ﻼ") or (char0 == "ﻸ") or (char0 == "ﻺ") or (char0 == "ﻶ") or (char0 == "ا") or (char0 == "أ") or (char0 == "إ") or (char0 == "آ") or (char0 == "لا") or (char0 == "ﻷ") or (char0 == "ﻹ") or (char0 == "ﻵ") or (char0 == "ﻵا") or (char0 == "ﻷا") or (char0 == "ﻹا") or (char0 == "ﻻا")) then    -- previous letter was ALEF, DA, THA, RA, ZAI, WA or LA, current should be in isolated form, only if this letter is the last in the word, otherwise form must be initial
+         if ((char0 == "\239\187\188") or (char0 == "\239\187\184") or (char0 == "\239\187\186") or 
+         (char0 == "\239\187\182") or (char0 == "\216\167") or (char0 == "\216\163") or 
+         (char0 == "\216\165") or (char0 == "\216\162") or (char0 == "\239\187\183") or 
+         (char0 == "\239\187\185") or (char0 == "\239\187\181") or (char0 == "\239\187\181\216\167") or 
+         (char0 == "\239\187\183\216\167") or (char0 == "\239\187\185\216\167") or (char0 == "\239\187\187\216\167") or
+         (char0 == "\217\132" and char1 == "\216\167") or (char0 == "\239\187\187")) then    -- previous letter was ALEF, DA, THA, RA, ZAI, WA or LA, current should be in isolated form, only if this letter is the last in the word, otherwise form must be initial
             if (AS_UTF8find(spaces,char1)) then                                     -- current character is space
                position = 0;                                                        -- isolated letter
             elseif ((nextletter == 0) or (nextletter == 1)) then                    -- end of file or space on as a next letter OR letter is ALEF
-               position = 0;      
+               position = 0;                                                        -- isolated letter
             else
                position = 1;                                                        -- initial letter
             end
-         elseif (char0 == "ذ") and (char1 == "ه") then                              -- previous letter was THA, current HA should be in isolated form, only if HA is the last in the word, otherwise form must be initial
+         elseif (char0 == "\216\176") and (char1 == "\217\135") then                -- previous letter was THA, current HA should be in isolated form, only if HA is the last in the word, otherwise form must be initial
             if ((nextletter == 0) or (nextletter == 1)) then                        -- end of file or space on as a next letter
                position = 0;                                                        -- isolated letter
             else
                position = 1;                                                        -- initial letter
             end
-         elseif  (char0 == "د") or (char0 == "ذ") or (char0 == "ر") or (char0 == "ز") or (char0 == "و") or (char0 == "ؤ") then
+         elseif (char0 == "\216\161") then                                          -- initial letter HAMZA
+            if (charbytes2 > 0 and not AS_UTF8find(spaces, char2)) then
+               position = 1;                                                        -- Initial letter (as it connects to the following character)
+           else
+               position = 0;                                                        -- Isolated letter (as it does not connect to the following character)
+           end
+         elseif  (char0 == "\216\175") or (char0 == "\216\176") or (char0 == "\216\177") or
+         (char0 == "\216\178") or (char0 == "\217\136") or (char0 == "\216\164") then
             if (AS_UTF8find(spaces,char1)) then                                     -- current character is space
                position = 0;                                                        -- isolated letter
             elseif ((nextletter == 0) or (nextletter == 1)) then                    -- next character is space
@@ -429,6 +441,4 @@ function AS_UTF8reverse(s)
       end
    end
    return newstr;
-end
-
--------------------------------------------------------------------------------------------------------
+end   
