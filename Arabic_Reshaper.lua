@@ -347,12 +347,6 @@ function AS_UTF8reverse(s)
             else
                position = 1;                                                        -- initial letter
             end
-         elseif (char0 == "\216\161") then                                          -- initial letter HAMZA
-            if (charbytes2 > 0 and not AS_UTF8find(spaces, char2)) then
-               position = 1;                                                        -- Initial letter (as it connects to the following character)
-           else
-               position = 0;                                                        -- Isolated letter (as it does not connect to the following character)
-           end
          elseif  (char0 == "\216\175") or (char0 == "\216\176") or (char0 == "\216\177") or
          (char0 == "\216\178") or (char0 == "\217\136") or (char0 == "\216\164") then
             if (AS_UTF8find(spaces,char1)) then                                     -- current character is space
@@ -363,6 +357,27 @@ function AS_UTF8reverse(s)
                position = 1;                                                        -- initial letter
             end
          end
+
+         if char0 == "\216\161" then -- Hamza character
+            if nextletter == 0 then -- No more characters after Hamza
+                position = 0 -- Isolated form
+            elseif nextletter == 1 then -- If next character is a space
+                -- Check the character after the space
+                if pos + charbytes2 <= bytes then
+                    local nextCharBytes = AS_UTF8charbytes(s, pos + charbytes2)
+                    local nextChar = strsub(s, pos + charbytes2, pos + charbytes2 + nextCharBytes - 1)
+                    
+                    -- Regardless of the nature of the next character, set to isolated form
+                    position = 0
+                            
+                else
+                    -- If it's the end of the string, set to isolated form
+                    position = 0
+                end
+            else -- If next character is not a space
+                position = 0 -- Isolated form
+            end
+        end
          
          
          if ((AS_Reshaping_Rules3[char1..char2..char3]) and (position >= 0)) then  -- ligature 3 characters
